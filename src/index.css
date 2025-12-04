@@ -1,0 +1,83 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+:root {
+from { transform: translateX(-8px); opacity: 0 }
+to { transform: translateX(0); opacity: 1 }
+}
+
+
+.sidebar-top { text-align: center }
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+
+.nav-list { display: flex; flex-direction: column; gap: 6px; margin-top: 1rem }
+
+
+.nav-link {
+text-decoration: none;
+color: inherit;
+border-radius: 10px;
+overflow: hidden;
+}
+
+
+.nav-link .MuiListItemButton-root {
+transition: transform 220ms ease, background 220ms ease;
+}
+
+
+.nav-link:hover .MuiListItemButton-root {
+transform: translateX(6px);
+background: rgba(99,102,241,0.06);
+}
+
+
+.nav-link.active .MuiListItemButton-root {
+background: linear-gradient(90deg, rgba(99,102,241,0.12), rgba(99,102,241,0.06));
+box-shadow: inset 0 0 0 1px rgba(99,102,241,0.06);
+}
+
+
+.logout-btn { border-radius: 10px }
+
+
+.content-area {
+width: var(--content-width);
+padding: 2rem;
+overflow-y: auto;
+}
+
+
+.panel {
+padding: 1.5rem;
+border-radius: 12px;
+animation: fadeUp 320ms ease;
+}
+
+
+@keyframes fadeUp {
+from { transform: translateY(6px); opacity: 0 }
+to { transform: translateY(0); opacity: 1 }
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+:root { --sidebar-width: 40%; --content-width: 60% }
+}
+
+
+@media (max-width: 700px) {
+.app-container { flex-direction: column }
+.sidebar { width: 100%; max-width: none; min-width: 0; height: auto }
+.content-area { width: 100% }
+}
