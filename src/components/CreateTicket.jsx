@@ -14,7 +14,7 @@ import { ToastContainer, toast } from "react-toastify";
 const SHEET_ID = "1G1Hvuz9sdgcNMHpqNlOelXjmDLIZIMeCVGd7hald0WA";
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbzeilK-6TnPa1YHeLpM9KMVPHPvHquY5r5f-GX6fOd9L2CpYP2DJJO7n6Uo_gvWGqoQ/exec";
+  "https://script.google.com/macros/s/AKfycbyuWIBTU0N-CP3coRa19oO5eSfoqRBt6q9dOJmoa4z-HI4R2S4hDNDSCSk3ZRE1Ywrk/exec";
 
 async function getTab(tabName) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${tabName}`;

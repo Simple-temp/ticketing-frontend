@@ -20,7 +20,7 @@ import { ToastContainer, toast } from "react-toastify";
 
 const SHEET_ID = "1G1Hvuz9sdgcNMHpqNlOelXjmDLIZIMeCVGd7hald0WA";
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbzeilK-6TnPa1YHeLpM9KMVPHPvHquY5r5f-GX6fOd9L2CpYP2DJJO7n6Uo_gvWGqoQ/exec";
+  "https://script.google.com/macros/s/AKfycbyuWIBTU0N-CP3coRa19oO5eSfoqRBt6q9dOJmoa4z-HI4R2S4hDNDSCSk3ZRE1Ywrk/exec";
 
 // SAFE CSV PARSER
 function parseCSVLine(line) {
@@ -291,16 +291,21 @@ const AllTicket = () => {
                   "Dec",
                 ];
                 const month = monthNames[bdDate.getMonth()];
-
                 const currentDate = `${day}-${month}`;
 
                 const time = now.toTimeString().slice(0, 5);
 
+                // Explicitly send values for update
                 const updated = {
-                  ...editData,
-                  sn: editData.sn, // REQUIRED
+                  sn: editData.sn,
                   solvedDate: currentDate,
                   solvedTime: time,
+                  sTime: editData.sTime || "",
+                  engName: editData.engName || "",
+                  engNameAnother: editData.engNameAnother || "",
+                  remarks: editData.remarks || "",
+                  closed: editData.closed || "",
+                  pending: editData.pending || "",
                   action: "updateTicket",
                 };
 
@@ -311,7 +316,9 @@ const AllTicket = () => {
                   },
                   body: new URLSearchParams(updated).toString(),
                 });
+
                 toast.success("Ticket Updated Successfully!");
+                console.log(updated)
                 handleClose();
                 window.location.reload();
               }}
