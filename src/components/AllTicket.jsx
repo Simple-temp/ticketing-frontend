@@ -16,10 +16,11 @@ import {
   MenuItem,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import { ToastContainer, toast } from "react-toastify";
 
 const SHEET_ID = "1G1Hvuz9sdgcNMHpqNlOelXjmDLIZIMeCVGd7hald0WA";
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbz7Hrx5WffrPyBXztbYnki738M2VjzWuOlziKuTPMB_SCWUYx9ln3gxQA89d3yyloMg/exec";
+  "https://script.google.com/macros/s/AKfycbzeilK-6TnPa1YHeLpM9KMVPHPvHquY5r5f-GX6fOd9L2CpYP2DJJO7n6Uo_gvWGqoQ/exec";
 
 // SAFE CSV PARSER
 function parseCSVLine(line) {
@@ -227,7 +228,7 @@ const AllTicket = () => {
                 ))}
               </TextField>
 
-              <TextField
+              {/* <TextField
                 select
                 label="Pending / Closed"
                 value={
@@ -242,13 +243,17 @@ const AllTicket = () => {
                   if (val === "Yes") {
                     setEditData({ ...editData, pending: "", closed: "Yes" });
                   } else {
-                    setEditData({ ...editData, pending: "Pending", closed: "" });
+                    setEditData({
+                      ...editData,
+                      pending: "Pending",
+                      closed: "",
+                    });
                   }
                 }}
               >
                 <MenuItem value="Pending">Pending</MenuItem>
                 <MenuItem value="Yes">Closed</MenuItem>
-              </TextField>
+              </TextField> */}
 
               <TextField
                 label="Remarks"
@@ -265,14 +270,36 @@ const AllTicket = () => {
               variant="contained"
               color="primary"
               onClick={async () => {
+                // Current date in Bangladesh timezone
                 const now = new Date();
-                const date = now.toISOString().split("T")[0];
+                const bdDate = new Date(now.getTime() + 6 * 60 * 60 * 1000); // UTC+6
+
+                // Format as d-MMM (6-Dec)
+                const day = bdDate.getDate();
+                const monthNames = [
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "May",
+                  "Jun",
+                  "Jul",
+                  "Aug",
+                  "Sep",
+                  "Oct",
+                  "Nov",
+                  "Dec",
+                ];
+                const month = monthNames[bdDate.getMonth()];
+
+                const currentDate = `${day}-${month}`;
+
                 const time = now.toTimeString().slice(0, 5);
 
                 const updated = {
                   ...editData,
                   sn: editData.sn, // REQUIRED
-                  solvedDate: date,
+                  solvedDate: currentDate,
                   solvedTime: time,
                   action: "updateTicket",
                 };
@@ -284,8 +311,7 @@ const AllTicket = () => {
                   },
                   body: new URLSearchParams(updated).toString(),
                 });
-
-                alert("Ticket Updated Successfully!");
+                toast.success("Ticket Updated Successfully!");
                 handleClose();
                 window.location.reload();
               }}

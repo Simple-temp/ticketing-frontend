@@ -1,0 +1,108 @@
+function doPost(e) {
+  try {
+    var ss = SpreadsheetApp.openByUrl(
+      "https://docs.google.com/spreadsheets/d/1G1Hvuz9sdgcNMHpqNlOelXjmDLIZIMeCVGd7hald0WA/edit#gid=0"
+    );
+    var sheet = ss.getSheetByName("ticket");
+    var data = e.parameter;
+
+    // Helper: convert string to Date object
+    function toDate(input) {
+      if (!input) return null;
+      var d = new Date(input);
+      if (!isNaN(d.getTime())) return d; // valid date
+      var parts = input.split(/[-\/]/);
+      if (parts.length === 3) {
+        return new Date(parts[0], parts[1] - 1, parts[2]); // yyyy, mm-1, dd
+      }
+      return null;
+    }
+
+    // Helper: get current date in Bangladesh timezone
+    function todayBD() {
+      var now = new Date();
+      var bdDateStr = Utilities.formatDate(now, "Asia/Dhaka", "yyyy-MM-dd");
+      return new Date(bdDateStr);
+    }
+
+    // ⛔ UPDATE TICKET
+    if (data.action === "updateTicket") {
+      var sn = Number(data.sn);
+      var rows = sheet.getDataRange().getValues();
+
+      for (var i = 1; i < rows.length; i++) {
+        if (Number(rows[i][0]) === sn) {
+          // solvedDate handling
+          var solvedDate = toDate(data.solvedDate);
+          if (solvedDate) {
+            sheet.getRange(i + 1, 7)
+                 .setValue(solvedDate)
+                 .setNumberFormat("d-MMM");
+            sheet.getRange(i + 1, 13).setValue("Yes"); // closed
+            sheet.getRange(i + 1, 14).setValue("");    // pending cleared
+          }
+
+          // Update other fields (keep previous if empty)
+          sheet.getRange(i + 1, 8).setValue(data.solvedTime || rows[i][7]);
+          sheet.getRange(i + 1, 9).setValue(data.sTime || rows[i][8]);
+          sheet.getRange(i + 1, 10).setValue(data.engName || rows[i][9]);
+          sheet.getRange(i + 1, 11).setValue(data.engNameAnother || rows[i][10]);
+          sheet.getRange(i + 1, 12).setValue(data.remarks || rows[i][11]);
+
+          return ContentService.createTextOutput(
+            JSON.stringify({ status: "updated", sn: sn })
+          ).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+
+      return ContentService.createTextOutput(
+        JSON.stringify({ status: "not_found", sn: sn })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ➤ CREATE NEW TICKET
+    var lastRow = sheet.getLastRow();
+    var lastSN = 0;
+    if (lastRow > 1) {
+      var snValue = Number(sheet.getRange(lastRow, 1).getValue());
+      if (!isNaN(snValue)) lastSN = snValue;
+    }
+    var newSN = lastSN + 1;
+
+    // Dates handling
+    var complainDate = toDate(data.complainDate) || todayBD();
+    var solvedDate = toDate(data.solvedDate);
+
+    // Append new row
+    sheet.appendRow([
+      newSN,
+      data.clientType || "",
+      data.clientName || "",
+      data.issue || "",
+      complainDate,
+      data.complainTime || "",
+      solvedDate || "",
+      data.solvedTime || "",
+      data.sTime || "",
+      data.engName || "",
+      data.engNameAnother || "",
+      data.remarks || "",
+      data.closed || "",
+      data.pending || "",
+    ]);
+
+    // Force d-MMM format in sheet
+    var newRow = sheet.getLastRow();
+    sheet.getRange(newRow, 5).setNumberFormat("d-MMM"); // complainDate
+    if (solvedDate) sheet.getRange(newRow, 7).setNumberFormat("d-MMM"); // solvedDate
+
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: "created", sn: newSN })
+    ).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(
+      JSON.stringify({ status: "error", message: err.message })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+}

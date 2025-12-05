@@ -9,11 +9,12 @@ import {
   Grid,
   Autocomplete,
 } from "@mui/material";
+import { ToastContainer, toast } from "react-toastify";
 
 const SHEET_ID = "1G1Hvuz9sdgcNMHpqNlOelXjmDLIZIMeCVGd7hald0WA";
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbyDXE3J46fbgA1YVMnZjZLk7b2jMY0UHhpCARmBvaDERbWBLWsyQcCXO925S2ays5Kx/exec";
+  "https://script.google.com/macros/s/AKfycbzeilK-6TnPa1YHeLpM9KMVPHPvHquY5r5f-GX6fOd9L2CpYP2DJJO7n6Uo_gvWGqoQ/exec";
 
 async function getTab(tabName) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${tabName}`;
@@ -50,9 +51,29 @@ const CreateTicket = () => {
   }, []);
 
   const handleSubmit = async () => {
+    // Current date in Bangladesh timezone
     const now = new Date();
+    const bdDate = new Date(now.getTime() + 6 * 60 * 60 * 1000); // UTC+6
 
-    const currentDate = now.toISOString().split("T")[0];
+    // Format as d-MMM (6-Dec)
+    const day = bdDate.getDate();
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const month = monthNames[bdDate.getMonth()];
+
+    const currentDate = `${day}-${month}`;
     const currentTime = now.toTimeString().slice(0, 5);
 
     const sendData = {
@@ -61,6 +82,7 @@ const CreateTicket = () => {
       complainTime: currentTime,
       solvedDate: "",
       solvedTime: "",
+      sTime :"00:00",
       engName: user,
     };
 
@@ -68,30 +90,24 @@ const CreateTicket = () => {
       const res = await axios.post(API_URL, sendData, {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
+      console.log(res.data);
 
-      if (res.data.status === "success") {
-        alert(`Ticket Created Successfully! SN: ${String(res.data.sn).padStart(4, "0")}`);
-
-        setFormData({
-          clientType: "",
-          clientName: "",
-          issue: "",
-          engName: user,
-          remarks: "",
-          closed: "",
-          pending: "Pending",
-        });
+      if (res.data) {
+        toast.success(`Ticket Created Successfully! SN: ${String(res.data.sn).padStart(4, "0")}`);
+        window.location.reload();
       } else {
-        alert("Error: " + res.data.message);
+        toast.error("Error: " + res.data.message);
       }
     } catch (err) {
       console.error("POST Error:", err);
-      alert("POST request failed. Check Web App URL.");
+      toast.error("POST request failed. Check Web App URL.");
     }
+    console.log(sendData);
   };
 
   return (
     <Box sx={{ p: 4 }}>
+      <ToastContainer position="top-center" />
       <Typography variant="h5" gutterBottom>
         Create Ticket
       </Typography>
@@ -106,7 +122,11 @@ const CreateTicket = () => {
               setFormData({ ...formData, clientType: newVal || "" })
             }
             renderInput={(params) => (
-              <TextField {...params} label="Client Type *" sx={{ width: "550px" }} />
+              <TextField
+                {...params}
+                label="Client Type *"
+                sx={{ width: "550px" }}
+              />
             )}
           />
         </Grid>
@@ -120,7 +140,11 @@ const CreateTicket = () => {
               setFormData({ ...formData, clientName: newVal || "" })
             }
             renderInput={(params) => (
-              <TextField {...params} label="Client Name *" sx={{ width: "550px" }} />
+              <TextField
+                {...params}
+                label="Client Name *"
+                sx={{ width: "550px" }}
+              />
             )}
           />
         </Grid>
