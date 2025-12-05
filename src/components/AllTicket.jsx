@@ -19,7 +19,7 @@ import EditIcon from "@mui/icons-material/Edit";
 
 const SHEET_ID = "1G1Hvuz9sdgcNMHpqNlOelXjmDLIZIMeCVGd7hald0WA";
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbzCDBtJLS9Bi-wp34lWdCSIPb257OiBwfnJTAf19KVBi8XnkVb8zSY0Kx1wxzPYwhNr/exec";
+  "https://script.google.com/macros/s/AKfycbz7Hrx5WffrPyBXztbYnki738M2VjzWuOlziKuTPMB_SCWUYx9ln3gxQA89d3yyloMg/exec";
 
 // SAFE CSV PARSER
 function parseCSVLine(line) {
@@ -71,7 +71,6 @@ const AllTicket = () => {
       const data = await getTab("ticket");
       const users = await getTab("user");
 
-      // Extract only names for dropdown
       const userNames = users.map((u) => u.clientName || u.engName || u.sn);
       setTicketList(data);
       setUserList(userNames);
@@ -87,9 +86,9 @@ const AllTicket = () => {
   const handleClose = () => setOpen(false);
 
   const getStatusColor = (pending, closed) => {
-    if (closed === "Yes") return "#4caf50"; // Green
-    if (pending === "Pending") return "#ff9800"; // Orange
-    return "#9e9e9e"; // Grey
+    if (closed === "Yes") return "#4caf50";
+    if (pending === "Pending") return "#ff9800";
+    return "#9e9e9e";
   };
 
   const paginatedData = ticketList.slice(
@@ -126,6 +125,7 @@ const AllTicket = () => {
                 <TableCell sx={{ color: "white" }}>Action</TableCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
               {paginatedData.map((t, index) => (
                 <TableRow key={index}>
@@ -141,6 +141,7 @@ const AllTicket = () => {
                   <TableCell>{t.engName}</TableCell>
                   <TableCell>{t.engNameAnother}</TableCell>
                   <TableCell>{t.remarks}</TableCell>
+
                   <TableCell>
                     <Box
                       sx={{
@@ -159,11 +160,11 @@ const AllTicket = () => {
                         : "Open"}
                     </Box>
                   </TableCell>
+
                   <TableCell>
                     <Button
                       size="small"
                       variant="contained"
-                      color="primary"
                       startIcon={<EditIcon />}
                       onClick={() => handleOpen(t)}
                     >
@@ -187,7 +188,7 @@ const AllTicket = () => {
         </Box>
       </Paper>
 
-      {/* ---------------- UPDATE MODAL ---------------- */}
+      {/* UPDATE MODAL */}
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
@@ -211,7 +212,6 @@ const AllTicket = () => {
             <Box
               sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}
             >
-              {/* Engineer Another */}
               <TextField
                 select
                 label="Engineer Another"
@@ -227,11 +227,16 @@ const AllTicket = () => {
                 ))}
               </TextField>
 
-              {/* Pending */}
               <TextField
                 select
-                label="Pending"
-                value={editData.pending === "Pending" ? "Pending" : editData.closed === "Yes" ? "Yes" : ""}
+                label="Pending / Closed"
+                value={
+                  editData.closed === "Yes"
+                    ? "Yes"
+                    : editData.pending === "Pending"
+                    ? "Pending"
+                    : ""
+                }
                 onChange={(e) => {
                   const val = e.target.value;
                   if (val === "Yes") {
@@ -242,10 +247,9 @@ const AllTicket = () => {
                 }}
               >
                 <MenuItem value="Pending">Pending</MenuItem>
-                <MenuItem value="Yes">Yes</MenuItem>
+                <MenuItem value="Yes">Closed</MenuItem>
               </TextField>
 
-              {/* Remarks */}
               <TextField
                 label="Remarks"
                 value={editData.remarks}
@@ -256,7 +260,6 @@ const AllTicket = () => {
             </Box>
           )}
 
-          {/* Submit Button */}
           <Box mt={4} display="flex" justifyContent="flex-end">
             <Button
               variant="contained"
@@ -268,20 +271,23 @@ const AllTicket = () => {
 
                 const updated = {
                   ...editData,
+                  sn: editData.sn, // REQUIRED
                   solvedDate: date,
                   solvedTime: time,
-                  sTime: editData.complainTime,
                   action: "updateTicket",
                 };
 
                 await fetch(API_URL, {
                   method: "POST",
-                  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                  },
                   body: new URLSearchParams(updated).toString(),
                 });
 
                 alert("Ticket Updated Successfully!");
                 handleClose();
+                window.location.reload();
               }}
             >
               Update Ticket
