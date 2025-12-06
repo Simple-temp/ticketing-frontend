@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
 
 const SHEET_ID = "1G1Hvuz9sdgcNMHpqNlOelXjmDLIZIMeCVGd7hald0WA";
 const API_URL =
@@ -62,7 +63,8 @@ const AllTicket = () => {
   const [ticketList, setTicketList] = useState([]);
   const [userList, setUserList] = useState([]);
   const [page, setPage] = useState(1);
-  const rowsPerPage = 6;
+  const rowsPerPage = 40;
+  console.log(ticketList);
 
   const [open, setOpen] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -72,8 +74,10 @@ const AllTicket = () => {
       const data = await getTab("ticket");
       const users = await getTab("user");
 
+      const reversedData = data.reverse();
+
       const userNames = users.map((u) => u.clientName || u.engName || u.sn);
-      setTicketList(data);
+      setTicketList(reversedData);
       setUserList(userNames);
     };
     load();
@@ -270,57 +274,62 @@ const AllTicket = () => {
               variant="contained"
               color="primary"
               onClick={async () => {
-                // Current date in Bangladesh timezone
-                const now = new Date();
-                const bdDate = new Date(now.getTime() + 6 * 60 * 60 * 1000); // UTC+6
+                try {
+                  // Current date in Bangladesh timezone
+                  const now = new Date();
+                  const bdDate = new Date(now.getTime() + 6 * 60 * 60 * 1000); // UTC+6
 
-                // Format as d-MMM (6-Dec)
-                const day = bdDate.getDate();
-                const monthNames = [
-                  "Jan",
-                  "Feb",
-                  "Mar",
-                  "Apr",
-                  "May",
-                  "Jun",
-                  "Jul",
-                  "Aug",
-                  "Sep",
-                  "Oct",
-                  "Nov",
-                  "Dec",
-                ];
-                const month = monthNames[bdDate.getMonth()];
-                const currentDate = `${day}-${month}`;
+                  // Format as d-MMM (6-Dec)
+                  const day = bdDate.getDate();
+                  const monthNames = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                  ];
+                  const month = monthNames[bdDate.getMonth()];
+                  const currentDate = `${day}-${month}`;
 
-                const time = now.toTimeString().slice(0, 5);
+                  const time = now.toTimeString().slice(0, 5);
 
-                // Explicitly send values for update
-                const updated = {
-                  sn: editData.sn,
-                  solvedDate: currentDate,
-                  solvedTime: time,
-                  sTime: editData.sTime || "",
-                  engName: editData.engName || "",
-                  engNameAnother: editData.engNameAnother || "",
-                  remarks: editData.remarks || "",
-                  closed: editData.closed || "",
-                  pending: editData.pending || "",
-                  action: "updateTicket",
-                };
+                  // Prepare update data
+                  const updated = {
+                    sn: editData.sn,
+                    solvedDate: currentDate,
+                    solvedTime: time,
+                    sTime: editData.sTime || "",
+                    engName: editData.engName || "",
+                    engNameAnother: editData.engNameAnother || "",
+                    remarks: editData.remarks || "",
+                    closed: editData.closed || "",
+                    pending: editData.pending || "",
+                    action: "updateTicket",
+                  };
 
-                await fetch(API_URL, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                  },
-                  body: new URLSearchParams(updated).toString(),
-                });
+                  console.log(updated);
 
-                toast.success("Ticket Updated Successfully!");
-                console.log(updated)
-                handleClose();
-                window.location.reload();
+                  // POST using axios
+                  await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: new URLSearchParams(updated).toString(),
+                  });
+                  toast.success("Ticket Updated Successfully!");
+                  handleClose();
+                } catch (error) {
+                  console.error("Update failed:", error);
+                  toast.error("Failed to update ticket.");
+                }
               }}
             >
               Update Ticket
