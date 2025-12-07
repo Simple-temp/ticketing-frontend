@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -8,65 +9,40 @@ import {
   Typography,
   Paper,
 } from "@mui/material";
-
 import { ToastContainer, toast } from "react-toastify";
 
-const SHEET_ID = "1G1Hvuz9sdgcNMHpqNlOelXjmDLIZIMeCVGd7hald0WA";
-
-async function getTab(tabName) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${tabName}`;
-  const res = await fetch(url);
-  const csv = await res.text();
-  const lines = csv.trim().split("\n");
-
-  return lines.slice(1).map((line) => {
-    const clean = line.replace(/"/g, "").trim();
-    const [user, pass] = clean.split(",");
-
-    return { user: user.trim(), pass: pass.trim() };
-  });
-}
+const API_URL = "http://localhost:5000/api/user/login"; // backend login route
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
-  const [userList, setUserList] = useState([]);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const load = async () => {
-      setUserList(await getTab("user"));
-    };
-    load();
-  }, []);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!username.trim() || !password.trim()) {
-      toast.error("Please enter username & password!");
+    if (!userId.trim() || !password.trim()) {
+      toast.error("Enter UserID & Password!");
       return;
     }
 
-    const matchedUser = userList.find(
-      (u) => u.user === username && u.pass === password
-    );
+    try {
+      const res = await axios.post(API_URL, { userId, password });
 
-    if (!matchedUser) {
-      toast.error("Invalid username or password!");
-      return;
+      // Save login info
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      toast.success("Login Successful!");
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1200);
+    } catch (err) {
+      console.error(err);
+      toast.error("Invalid UserID or Password!");
     }
-
-    // success
-    toast.success("Login Successfully!");
-
-    localStorage.setItem("auth", "true");
-    localStorage.setItem("user", username);
-
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 1200);
   };
 
   return (
@@ -74,23 +50,20 @@ const Login = () => {
       <ToastContainer position="top-center" />
 
       <Container maxWidth="sm" sx={{ marginTop: "6rem" }}>
-        <Paper
-          elevation={6}
-          sx={{
-            padding: "2rem",
-            backgroundColor: "#001f3f",
-            color: "white",
-          }}
-        >
+        <Paper elevation={6} sx={{ padding: "2rem", backgroundColor: "#001f3f", color: "white" }}>
           <Typography variant="h4" align="center" gutterBottom>
             Login
           </Typography>
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2 }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{ display: "grid", gap: 2 }}
+          >
             <TextField
-              label="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              label="User ID"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
               InputLabelProps={{ style: { color: "white" } }}
               InputProps={{ style: { color: "white" } }}
             />
@@ -114,7 +87,7 @@ const Login = () => {
                 "&:hover": { backgroundColor: "#00306b" },
               }}
             >
-              Sign in
+              Login
             </Button>
           </Box>
         </Paper>

@@ -35,11 +35,9 @@ const navItems = [
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const storedUser = localStorage.getItem("user");
-  const user = (storedUser && storedUser) || "User";
+const storedUser = JSON.parse(localStorage.getItem("user"));
 
   const handleLogout = () => {
-    localStorage.removeItem("auth");
     localStorage.removeItem("user");
     navigate("/");
   };
@@ -72,10 +70,10 @@ const Sidebar = () => {
         }}
       >
         <Avatar sx={{ width: 64, height: 64 }}>
-          {String(user)[0].toUpperCase()}
+          {String(storedUser.name)[0].toUpperCase()}
         </Avatar>
         <Typography variant="h6" sx={{ mt: 1, textAlign: "center" }}>
-          {user}
+          {storedUser.name}
         </Typography>
       </Box>
 

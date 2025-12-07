@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import {
   Box,
   TextField,
-  MenuItem,
   Button,
   Typography,
   Grid,
@@ -11,65 +10,44 @@ import {
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 
-const SHEET_ID = "1G1Hvuz9sdgcNMHpqNlOelXjmDLIZIMeCVGd7hald0WA";
-
-const API_URL =
-  "https://script.google.com/macros/s/AKfycbwwt-NUSe6M6bKvP-2rHwVkTAYo--pq3ScS9Tkq0OEM1LGQZsJi_mLEwAQzyyMp5xN9/exec";
-
-async function getTab(tabName) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${tabName}`;
-  const res = await fetch(url);
-  const csv = await res.text();
-  const lines = csv.trim().split("\n");
-  return lines.slice(1).map((line) => line.replace(/"/g, "").trim());
-}
+const API_URL = "http://localhost:5000/api/ticket/create";
 
 const CreateTicket = () => {
-  const [issueList, setIssueList] = useState([]);
-  const [clientList, setClientList] = useState([]);
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
 
-  // get username from local storage
-  const storedUser = localStorage.getItem("user");
-  const user = (storedUser && storedUser) || "User";
+  const currentEng = storedUser?.name || "Engineer";
+
+  const [issueList, setIssueList] = useState([
+    "No Internet",
+    "ONU Offline",
+    "Fiber Cut",
+  ]);
+  const [clientList, setClientList] = useState(["Client A", "Client B", "Client C"]);
 
   const [formData, setFormData] = useState({
     clientType: "",
     clientName: "",
     issue: "",
-    engName: user,
-    remarks: "",
+    engName: currentEng,
+    engNameAnother: "",
+    remarks: "", // temporary input before sending
     closed: "",
     pending: "Pending",
   });
 
-  useEffect(() => {
-    const load = async () => {
-      setIssueList(await getTab("issue"));
-      setClientList(await getTab("client"));
-    };
-    load();
-  }, []);
-
   const handleSubmit = async () => {
-    // Current date in Bangladesh timezone
-    const now = new Date();
-    const bdDate = new Date(now.getTime() + 6 * 60 * 60 * 1000); // UTC+6
+    if (!formData.clientType || !formData.clientName || !formData.issue) {
+      toast.error("Please fill all required fields!");
+      return;
+    }
 
-    // Format as d-MMM (6-Dec)
+    const now = new Date();
+    const bdDate = new Date(now.getTime() + 6 * 60 * 60 * 1000);
     const day = bdDate.getDate();
     const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "Jan","Feb","Mar","Apr","May","Jun",
+      "Jul","Aug","Sep","Oct","Nov","Dec"
     ];
     const month = monthNames[bdDate.getMonth()];
 
@@ -82,32 +60,40 @@ const CreateTicket = () => {
       complainTime: currentTime,
       solvedDate: "",
       solvedTime: "",
-      sTime :"00:00",
-      engName: user,
+      sTime: "00:00",
+      engName: currentEng,
+      // push first remark into array
+      remarks: formData.remarks
+        ? [
+            {
+              text: formData.remarks,
+              user: storedUser._id,
+              timestamp: new Date(),
+            },
+          ]
+        : [],
     };
 
     try {
       const res = await axios.post(API_URL, sendData, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
-      console.log(res.data);
 
-      if (res.data) {
-        toast.success(`Ticket Created Successfully! SN: ${String(res.data.sn).padStart(4, "0")}`);
-        window.location.reload();
-      } else {
-        toast.error("Error: " + res.data.message);
-      }
+      toast.success(`Ticket Created! SN: ${res.data.Sn}`);
+      setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
-      console.error("POST Error:", err);
-      toast.error("POST request failed. Check Web App URL.");
+      console.log(err);
+      toast.error("Failed to create ticket!");
     }
-    console.log(sendData);
   };
 
   return (
     <Box sx={{ p: 4 }}>
       <ToastContainer position="top-center" />
+
       <Typography variant="h5" gutterBottom>
         Create Ticket
       </Typography>
@@ -118,15 +104,11 @@ const CreateTicket = () => {
           <Autocomplete
             options={["BW", "MAC", "Others"]}
             value={formData.clientType}
-            onChange={(e, newVal) =>
-              setFormData({ ...formData, clientType: newVal || "" })
+            onChange={(e, val) =>
+              setFormData({ ...formData, clientType: val || "" })
             }
             renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Client Type *"
-                sx={{ width: "550px" }}
-              />
+              <TextField {...params} label="Client Type *" sx={{ width: "550px" }} />
             )}
           />
         </Grid>
@@ -136,15 +118,11 @@ const CreateTicket = () => {
           <Autocomplete
             options={clientList}
             value={formData.clientName}
-            onChange={(e, newVal) =>
-              setFormData({ ...formData, clientName: newVal || "" })
+            onChange={(e, val) =>
+              setFormData({ ...formData, clientName: val || "" })
             }
             renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Client Name *"
-                sx={{ width: "550px" }}
-              />
+              <TextField {...params} label="Client Name *" sx={{ width: "550px" }} />
             )}
           />
         </Grid>
@@ -154,8 +132,8 @@ const CreateTicket = () => {
           <Autocomplete
             options={issueList}
             value={formData.issue}
-            onChange={(e, newVal) =>
-              setFormData({ ...formData, issue: newVal || "" })
+            onChange={(e, val) =>
+              setFormData({ ...formData, issue: val || "" })
             }
             renderInput={(params) => (
               <TextField {...params} label="Issue *" sx={{ width: "550px" }} />
@@ -163,11 +141,10 @@ const CreateTicket = () => {
           />
         </Grid>
 
-        {/* Remarks */}
+        {/* Initial Remark */}
         <Grid item xs={12} md={6}>
           <TextField
-            label="Remarks"
-            name="remarks"
+            label="Initial Remark"
             value={formData.remarks}
             onChange={(e) =>
               setFormData({ ...formData, remarks: e.target.value })
