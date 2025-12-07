@@ -41,29 +41,32 @@ const TicketDetailsById = () => {
     fetchTicket();
   }, [id]);
 
-const handleAddRemark = async () => {
-  if (!newRemark) return toast.error("Enter a remark");
+  const handleAddRemark = async () => {
+    if (!newRemark) return toast.error("Enter a remark");
 
-  const token = localStorage.getItem("token");
-  const headers = { Authorization: `Bearer ${token}` };
+    const token = localStorage.getItem("token");
+    const headers = { Authorization: `Bearer ${token}` };
 
-  try {
-    // Send only the new remark to backend
-    const res = await axios.put(`${API_URL}/${id}/update`, {
-      text: newRemark,
-      status: status || "Open",
-    }, { headers });
+    try {
+      // Send only the new remark to backend
+      const res = await axios.put(
+        `${API_URL}/${id}/update`,
+        {
+          text: newRemark,
+          status: status || "Open",
+        },
+        { headers }
+      );
 
-    setTicket(res.data); // backend returns updated ticket with populated user
-    setNewRemark("");
-    setStatus("");
-    toast.success("Remark added successfully");
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to add remark");
-  }
-};
-
+      setTicket(res.data); // backend returns updated ticket with populated user
+      setNewRemark("");
+      setStatus("");
+      toast.success("Remark added successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add remark");
+    }
+  };
 
   const getStatusColor = (status) => {
     if (status === "Closed") return "#f44336"; // red
@@ -98,7 +101,9 @@ const handleAddRemark = async () => {
             </TableRow>
             <TableRow>
               <TableCell>Complain Date & Time</TableCell>
-              <TableCell>{ticket.complainDate} {ticket.complainTime}</TableCell>
+              <TableCell>
+                {ticket.complainDate} {ticket.complainTime}
+              </TableCell>
             </TableRow>
             <TableRow>
               <TableCell>Engineer</TableCell>
@@ -110,7 +115,9 @@ const handleAddRemark = async () => {
 
       {/* Add Remark */}
       <Paper sx={{ mb: 4, p: 2 }}>
-        <Typography variant="h6" mb={2}>Add Remark</Typography>
+        <Typography variant="h6" mb={2}>
+          Add Remark
+        </Typography>
         <Box display="flex" gap={2} mb={2}>
           <TextField
             label="Remark"
@@ -142,7 +149,9 @@ const handleAddRemark = async () => {
 
       {/* Remarks Log */}
       <Paper sx={{ p: 2 }}>
-        <Typography variant="h6" mb={2}>Remarks Log</Typography>
+        <Typography variant="h6" mb={2}>
+          Remarks Log
+        </Typography>
         <Table>
           <TableHead>
             <TableRow>
@@ -153,21 +162,30 @@ const handleAddRemark = async () => {
               <TableCell>Status</TableCell>
             </TableRow>
           </TableHead>
-<TableBody>
-  {ticket.remarks
-    .slice()
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-    .map((r, idx) => (
-      <TableRow key={idx} sx={{ backgroundColor: getStatusColor(r.status) + "33" }}>
-        <TableCell>{r.user?.name || "N/A"}</TableCell>
-        <TableCell>{new Date(r.timestamp).toLocaleDateString()}</TableCell>
-        <TableCell>{new Date(r.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</TableCell>
-        <TableCell>{r.text}</TableCell>
-        <TableCell>{r.status}</TableCell>
-      </TableRow>
-    ))}
-</TableBody>
-
+          <TableBody>
+            {ticket.remarks
+              .slice()
+              .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+              .map((r, idx) => (
+                <TableRow
+                  key={idx}
+                  sx={{ backgroundColor: getStatusColor(r.status) + "33" }}
+                >
+                  <TableCell>{r.user?.name || "N/A"}</TableCell>
+                  <TableCell>
+                    {new Date(r.timestamp).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(r.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </TableCell>
+                  <TableCell>{r.text}</TableCell>
+                  <TableCell>{r.status}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
         </Table>
       </Paper>
     </Box>
