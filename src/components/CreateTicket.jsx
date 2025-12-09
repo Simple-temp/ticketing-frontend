@@ -9,6 +9,8 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { issueListAll, clientListAll } from "./Database";
 
 const API_URL = "http://localhost:5000/api/ticket/create";
 
@@ -18,12 +20,8 @@ const CreateTicket = () => {
 
   const currentEng = storedUser?.name || "Engineer";
 
-  const [issueList, setIssueList] = useState([
-    "No Internet",
-    "ONU Offline",
-    "Fiber Cut",
-  ]);
-  const [clientList, setClientList] = useState(["Client A", "Client B", "Client C"]);
+  const [issueList] = useState(issueListAll);
+  const [clientList] = useState(clientListAll);
 
   const [formData, setFormData] = useState({
     clientType: "",
@@ -31,44 +29,64 @@ const CreateTicket = () => {
     issue: "",
     engName: currentEng,
     engNameAnother: "",
-    remarks: "", // temporary input before sending
+    remarks: "",
     closed: "",
     pending: "Pending",
   });
 
+  // -------------------------------
+  //  100% EXACT BANGLADESH TIME
+  // -------------------------------
+  const getBangladeshDateTime = () => {
+    const bdString = new Date().toLocaleString("en-US", {
+      timeZone: "Asia/Dhaka",
+    });
+
+    const bdDate = new Date(bdString);
+
+    // date example: "9 Dec"
+    const day = bdDate.getDate();
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const month = months[bdDate.getMonth()];
+    const dateFormatted = `${day} ${month}`;
+
+    // time example: "5:27 PM"
+    let hour = bdDate.getHours();
+    const minute = String(bdDate.getMinutes()).padStart(2, "0");
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+
+    const timeFormatted = `${hour}:${minute} ${ampm}`;
+
+    return { dateFormatted, timeFormatted, bdDateObj: bdDate };
+  };
+
+  // -------------------------------
+  //  HANDLE SUBMIT
+  // -------------------------------
   const handleSubmit = async () => {
     if (!formData.clientType || !formData.clientName || !formData.issue) {
       toast.error("Please fill all required fields!");
       return;
     }
 
-    const now = new Date();
-    const bdDate = new Date(now.getTime() + 6 * 60 * 60 * 1000);
-    const day = bdDate.getDate();
-    const monthNames = [
-      "Jan","Feb","Mar","Apr","May","Jun",
-      "Jul","Aug","Sep","Oct","Nov","Dec"
-    ];
-    const month = monthNames[bdDate.getMonth()];
-
-    const currentDate = `${day}-${month}`;
-    const currentTime = now.toTimeString().slice(0, 5);
+    const { dateFormatted, timeFormatted, bdDateObj } = getBangladeshDateTime();
 
     const sendData = {
       ...formData,
-      complainDate: currentDate,
-      complainTime: currentTime,
+      complainDate: dateFormatted,
+      complainTime: timeFormatted,
       solvedDate: "",
       solvedTime: "",
       sTime: "00:00",
       engName: currentEng,
-      // push first remark into array
+
       remarks: formData.remarks
         ? [
             {
               text: formData.remarks,
-              user: storedUser._id,
-              timestamp: new Date(),
+              user: storedUser?._id || null,
+              timestamp: bdDateObj.toISOString(),
             },
           ]
         : [],
@@ -83,10 +101,10 @@ const CreateTicket = () => {
       });
 
       toast.success(`Ticket Created! SN: ${res.data.Sn}`);
-      setTimeout(() => window.location.reload(), 1500);
+      setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
-      console.log(err);
-      toast.error("Failed to create ticket!");
+      console.error(err);
+      toast.error("Ticket creation failed!");
     }
   };
 
@@ -141,7 +159,7 @@ const CreateTicket = () => {
           />
         </Grid>
 
-        {/* Initial Remark */}
+        {/* Remark */}
         <Grid item xs={12} md={6}>
           <TextField
             label="Initial Remark"

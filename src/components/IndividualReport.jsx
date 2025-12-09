@@ -75,6 +75,7 @@ const IndividualReport = () => {
 
     setFilteredTickets(filtered);
   }, [filters, ticketList]);
+  console.log(filteredTickets)
 
   // Summary counts
   const summary = filteredTickets.reduce(
@@ -204,9 +205,7 @@ const IndividualReport = () => {
                 key={index}
                 sx={{ "&:hover": { backgroundColor: "#f5f5f5" } }}
               >
-                <TableCell align="center">
-                  {String(t.sn).padStart(4, "0")}
-                </TableCell>
+                <TableCell align="center">{t.Sn}</TableCell>
                 <TableCell align="center">{t.clientType}</TableCell>
                 <TableCell align="center">{t.clientName}</TableCell>
                 <TableCell align="center">{t.issue}</TableCell>
@@ -228,12 +227,12 @@ const IndividualReport = () => {
                           )[0];
                         return (
                           <Box>
-                            <strong>{lastRemark.user?.name || "N/A"}:</strong>{" "}
+                            {/* <strong>{lastRemark.user?.name || "N/A"}:</strong>{" "} */}
                             {lastRemark.text}{" "}
-                            <em>
+                            {/* <em>
                               ({new Date(lastRemark.timestamp).toLocaleString()}
                               )
-                            </em>
+                            </em> */}
                           </Box>
                         );
                       })()

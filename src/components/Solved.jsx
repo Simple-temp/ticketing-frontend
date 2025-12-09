@@ -54,7 +54,7 @@ const Solved = () => {
     <Box p={3}>
       <ToastContainer position="top-center" />
       <Typography variant="h5" mb={3} sx={{ fontWeight: 600 }}>
-        Solved Tickets
+        Solved Tickets {tickets.length}
       </Typography>
 
       <Paper sx={{ p: 2, boxShadow: 3, borderRadius: 2 }}>

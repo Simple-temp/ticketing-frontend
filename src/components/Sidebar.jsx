@@ -23,12 +23,12 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 const navItems = [
   { to: "dashboardview", text: "Dashboard View", icon: <DashboardIcon /> },
+  { to: "allticket", text: "All Tickets", icon: <ListAltIcon /> },
   { to: "create", text: "Create Ticket", icon: <CreateIcon /> },
   { to: "pending", text: "Pending", icon: <PendingActionsIcon /> },
   { to: "solve", text: "Solved", icon: <DoneAllIcon /> },
   { to: "macissue", text: "MAC Issue", icon: <LaptopMacIcon /> },
   { to: "bwissue", text: "BW Issue", icon: <SpeedIcon /> },
-  { to: "allticket", text: "All Tickets", icon: <ListAltIcon /> },
   { to: "individualreport", text: "Individual Report", icon: <PersonIcon /> },
   { to: "addnewuser", text: "Add New User", icon: <PersonAddIcon /> },
 ];
