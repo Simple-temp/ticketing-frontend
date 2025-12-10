@@ -12,7 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { issueListAll, clientListAll } from "./Database";
 
-const API_URL = "http://localhost:5000/api/ticket/create";
+const API_URL = "http://192.168.12.62:5000/api/ticket/create";
 
 const CreateTicket = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -46,7 +46,20 @@ const CreateTicket = () => {
 
     // date example: "9 Dec"
     const day = bdDate.getDate();
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const month = months[bdDate.getMonth()];
     const dateFormatted = `${day} ${month}`;
 
@@ -126,7 +139,11 @@ const CreateTicket = () => {
               setFormData({ ...formData, clientType: val || "" })
             }
             renderInput={(params) => (
-              <TextField {...params} label="Client Type *" sx={{ width: "550px" }} />
+              <TextField
+                {...params}
+                label="Client Type *"
+                sx={{ width: "550px" }}
+              />
             )}
           />
         </Grid>
@@ -140,7 +157,11 @@ const CreateTicket = () => {
               setFormData({ ...formData, clientName: val || "" })
             }
             renderInput={(params) => (
-              <TextField {...params} label="Client Name *" sx={{ width: "550px" }} />
+              <TextField
+                {...params}
+                label="Client Name *"
+                sx={{ width: "550px" }}
+              />
             )}
           />
         </Grid>

@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 
-const API_URL = "http://localhost:5000/api/ticket/all";
+const API_URL = "http://192.168.12.62:5000/api/ticket/all";
 
 const Pending = () => {
   const [tickets, setTickets] = useState([]);
@@ -70,13 +70,27 @@ const Pending = () => {
         <Table sx={{ minWidth: 900 }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: "#1976d2" }}>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Ticket ID</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Client Name</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Client Type</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Issue</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Engineer</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Complain Date</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Status</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Ticket ID
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Client Name
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Client Type
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Issue
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Engineer
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Complain Date
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Status
+              </TableCell>
             </TableRow>
           </TableHead>
 

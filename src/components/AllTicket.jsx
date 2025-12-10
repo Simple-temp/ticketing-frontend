@@ -17,8 +17,7 @@ import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-
-const API_URL = "http://localhost:5000/api/ticket/all"; // ticket backend
+const API_URL = "http://192.168.12.62:5000/api/ticket/all"; // ticket backend
 
 const AllTicket = () => {
   const [ticketList, setTicketList] = useState([]);
@@ -56,36 +55,37 @@ const AllTicket = () => {
   );
   const totalPages = Math.ceil(ticketList.length / rowsPerPage);
 
-const HandleDelete = async (id) => {
-  if (!id) return;
+  const HandleDelete = async (id) => {
+    if (!id) return;
 
-  // Confirm popup
-  if (!window.confirm("Are you sure you want to delete this ticket?")) {
-    return;
-  }
+    // Confirm popup
+    if (!window.confirm("Are you sure you want to delete this ticket?")) {
+      return;
+    }
 
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await axios.delete(`http://localhost:5000/api/ticket/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const res = await axios.delete(
+        `http://192.168.12.62:5000/api/ticket/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    toast.success("Ticket deleted successfully!");
+      toast.success("Ticket deleted successfully!");
 
-    // Refresh after delete
-    setTimeout(() => {
-      window.location.reload();
-    }, 800);
-
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to delete the ticket!");
-  }
-};
-
+      // Refresh after delete
+      setTimeout(() => {
+        window.location.reload();
+      }, 800);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete the ticket!");
+    }
+  };
 
   return (
     <div>
@@ -177,22 +177,21 @@ const HandleDelete = async (id) => {
                         </Button>
                       </Link>
                     </TableCell>
-<TableCell>
-  <DeleteIcon
-    onClick={() => HandleDelete(t._id)}
-    sx={{
-      cursor: "pointer",
-      color: "error.main",
-      fontSize: 28,
-      "&:hover": {
-        color: "error.dark",
-        transform: "scale(1.15)",
-        transition: "0.2s",
-      },
-    }}
-  />
-</TableCell>
-
+                    <TableCell>
+                      <DeleteIcon
+                        onClick={() => HandleDelete(t._id)}
+                        sx={{
+                          cursor: "pointer",
+                          color: "error.main",
+                          fontSize: 28,
+                          "&:hover": {
+                            color: "error.dark",
+                            transform: "scale(1.15)",
+                            transition: "0.2s",
+                          },
+                        }}
+                      />
+                    </TableCell>
                   </TableRow>
                 );
               })}

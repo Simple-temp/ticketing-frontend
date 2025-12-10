@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 
-const API_URL = "http://localhost:5000/api/ticket/all";
+const API_URL = "http://192.168.12.62:5000/api/ticket/all";
 
 const MACIssue = () => {
   const [tickets, setTickets] = useState([]);
@@ -63,13 +63,27 @@ const MACIssue = () => {
         <Table sx={{ minWidth: 900 }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: "#1976d2" }}>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Ticket ID</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Client Name</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Issue</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Engineer</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Complain Date</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Complain Time</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>Status</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Ticket ID
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Client Name
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Issue
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Engineer
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Complain Date
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Complain Time
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                Status
+              </TableCell>
             </TableRow>
           </TableHead>
 
@@ -97,9 +111,21 @@ const MACIssue = () => {
                   <TableCell>{ticket.complainTime}</TableCell>
                   <TableCell>
                     <Chip
-                      label={ticket.closed === "Yes" ? "Closed" : ticket.pending === "Yes" ? "Pending" : "Open"}
+                      label={
+                        ticket.closed === "Yes"
+                          ? "Closed"
+                          : ticket.pending === "Yes"
+                          ? "Pending"
+                          : "Open"
+                      }
                       sx={{
-                        backgroundColor: getStatusColor(ticket.closed === "Yes" ? "Closed" : ticket.pending === "Yes" ? "Pending" : "Open"),
+                        backgroundColor: getStatusColor(
+                          ticket.closed === "Yes"
+                            ? "Closed"
+                            : ticket.pending === "Yes"
+                            ? "Pending"
+                            : "Open"
+                        ),
                         color: "white",
                         fontWeight: 600,
                       }}

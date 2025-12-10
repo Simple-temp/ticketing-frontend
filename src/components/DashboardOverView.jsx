@@ -10,7 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-const API_URL =  "http://localhost:5000/api/ticket/all";
+const API_URL = "http://192.168.12.62:5000/api/ticket/all";
 
 const DashboardOverView = () => {
   const [tickets, setTickets] = useState([]);
@@ -43,7 +43,7 @@ const DashboardOverView = () => {
   const macCount = tickets.filter((t) => t.clientType === "MAC").length;
   const solvedCount = tickets.filter((t) => t.closed === "Yes").length;
   const pendingCount = tickets.filter((t) => t.pending === "Pending").length;
-  console.log(solvedCount)
+  console.log(solvedCount);
 
   // Boxes
   const boxes = [
@@ -73,13 +73,13 @@ const DashboardOverView = () => {
           container
           spacing={3}
           justifyContent="center"
-          sx={{ maxWidth: "800px" }}  // --- 👌 Controls 2-column layout width
+          sx={{ maxWidth: "800px" }} // --- 👌 Controls 2-column layout width
         >
           {boxes.map((item, index) => (
             <Grid
               item
               xs={12}
-              md={6}    // --- 👌 Always 2 columns
+              md={6} // --- 👌 Always 2 columns
               key={index}
               sx={{ display: "flex", justifyContent: "center" }}
             >
