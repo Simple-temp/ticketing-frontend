@@ -12,17 +12,26 @@ import {
   Button,
   Box,
   Pagination,
+  TextField,
+  MenuItem,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import DeleteIcon from "@mui/icons-material/Delete";
+import * as XLSX from "xlsx";
 
-const API_URL = "http://192.168.12.62:5000/api/ticket/all"; // ticket backend
+const API_URL = "http://192.168.12.62:5000/api/ticket/all";
 
 const AllTicket = () => {
   const [ticketList, setTicketList] = useState([]);
+  const [filteredList, setFilteredList] = useState([]);
+
   const [page, setPage] = useState(1);
   const rowsPerPage = 6;
+
+  const [searchEng, setSearchEng] = useState("");
+  const [searchClientType, setSearchClientType] = useState("");
+  const [searchPending, setSearchPending] = useState("");
 
   useEffect(() => {
     const loadTickets = async () => {
@@ -34,7 +43,10 @@ const AllTicket = () => {
         }
         const headers = { Authorization: `Bearer ${token}` };
         const res = await axios.get(API_URL, { headers });
-        setTicketList(res.data.reverse());
+
+        const reversed = res.data.reverse();
+        setTicketList(reversed);
+        setFilteredList(reversed);
       } catch (error) {
         console.error(error);
         toast.error("Failed to fetch tickets");
@@ -43,57 +55,151 @@ const AllTicket = () => {
     loadTickets();
   }, []);
 
-  const getStatusColor = (pending, closed) => {
-    if (closed === "Yes") return "#4caf50"; // green
-    if (pending === "Pending") return "#ff9800"; // yellow
-    return "#9e9e9e"; // gray/open
-  };
+  // -----------------------------
+  // FILTERING
+  // -----------------------------
+  useEffect(() => {
+    let data = [...ticketList];
 
-  const paginatedData = ticketList.slice(
-    (page - 1) * rowsPerPage,
-    page * rowsPerPage
-  );
-  const totalPages = Math.ceil(ticketList.length / rowsPerPage);
+    if (searchEng.trim() !== "") {
+      data = data.filter((t) =>
+        t.clientName?.toLowerCase().includes(searchEng.toLowerCase())
+      );
+    }
 
-  const HandleDelete = async (id) => {
-    if (!id) return;
+    if (searchClientType.trim() !== "") {
+      data = data.filter((t) =>
+        t.clientType?.toLowerCase().includes(searchClientType.toLowerCase())
+      );
+    }
 
-    // Confirm popup
-    if (!window.confirm("Are you sure you want to delete this ticket?")) {
+    if (searchPending.trim() !== "") {
+      data = data.filter((t) =>
+        t.pending?.toLowerCase().includes(searchPending.toLowerCase())
+      );
+    }
+
+    setFilteredList(data);
+    setPage(1);
+  }, [searchEng, searchClientType, ticketList, searchPending]);
+
+  // -----------------------------
+  // EXPORT EXCEL FUNCTION
+  // -----------------------------
+  const exportToExcel = () => {
+    if (filteredList.length === 0) {
+      toast.error("No data to export");
       return;
     }
 
+    const excelData = filteredList.map((t) => {
+      const lastRemark = t.remarks?.length
+        ? t.remarks.sort(
+            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+          )[0].text
+        : "";
+
+      return {
+        Sn: t.Sn,
+        clientType: t.clientType,
+        clientName: t.clientName,
+        issue: t.issue,
+        complainDate: t.complainDate,
+        complainTime: t.complainTime,
+        solvedDate: t.solvedDate,
+        solvedTime: t.solvedTime,
+        sTime: t.sTime,
+        engName: t.engName,
+        engNameAnother: t.engNameAnother,
+        lastRemark: lastRemark,
+        closed: t.closed,
+        pending: t.pending,
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tickets");
+
+    XLSX.writeFile(workbook, "tickets_export.xlsx");
+    toast.success("Excel file exported!");
+  };
+
+  // Pagination
+  const paginatedData = filteredList.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
+  const totalPages = Math.ceil(filteredList.length / rowsPerPage);
+
+  // Status color
+  const getStatusColor = (pending, closed) => {
+    if (closed === "Yes") return "#4caf50";
+    if (pending === "Pending") return "#ff9800";
+    return "#9e9e9e";
+  };
+
+  // Delete
+  const HandleDelete = async (id) => {
+    if (!id) return;
+
+    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
+
     try {
       const token = localStorage.getItem("token");
+      await axios.delete(`http://192.168.12.62:5000/api/ticket/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      const res = await axios.delete(
-        `http://192.168.12.62:5000/api/ticket/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      toast.success("Ticket deleted successfully!");
-
-      // Refresh after delete
-      setTimeout(() => {
-        window.location.reload();
-      }, 800);
+      toast.success("Ticket deleted");
+      setTimeout(() => window.location.reload(), 700);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete the ticket!");
+      toast.error("Delete failed");
     }
   };
 
   return (
     <div>
       <ToastContainer position="top-center" />
+
       <Paper elevation={3} sx={{ padding: 3 }}>
-        <Typography variant="h5" gutterBottom>
-          All Tickets {ticketList.length}
-        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h5">
+            All Tickets ({filteredList.length})
+          </Typography>
+
+          <Button variant="contained" color="success" onClick={exportToExcel}>
+            Export Excel
+          </Button>
+        </Box>
+
+        {/* SEARCH ROW */}
+        <Box display="flex" gap={2} mt={2} mb={2}>
+          <TextField
+            label="Search Client Name"
+            value={searchEng}
+            onChange={(e) => setSearchEng(e.target.value)}
+            size="small"
+            sx={{ width: 250 }}
+          />
+
+          <TextField
+            label="Search Client Type"
+            value={searchClientType}
+            onChange={(e) => setSearchClientType(e.target.value)}
+            size="small"
+            sx={{ width: 250 }}
+          />
+
+          <TextField
+            label="Pending"
+            value={searchPending}
+            onChange={(e) => setSearchPending(e.target.value)}
+            size="small"
+            sx={{ width: 250 }}
+          />
+        </Box>
 
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 1200 }}>
@@ -106,9 +212,7 @@ const AllTicket = () => {
                 <TableCell sx={{ color: "white" }}>Complain Date</TableCell>
                 <TableCell sx={{ color: "white" }}>Complain Time</TableCell>
                 <TableCell sx={{ color: "white" }}>Solved Date</TableCell>
-                {/* <TableCell sx={{ color: "white" }}>Solved Time</TableCell> */}
                 <TableCell sx={{ color: "white" }}>Engineer</TableCell>
-                {/* <TableCell sx={{ color: "white" }}>Engineer Another</TableCell> */}
                 <TableCell sx={{ color: "white" }}>Latest Remark</TableCell>
                 <TableCell sx={{ color: "white" }}>Status</TableCell>
                 <TableCell sx={{ color: "white" }}>Details</TableCell>
@@ -118,6 +222,12 @@ const AllTicket = () => {
 
             <TableBody>
               {paginatedData.map((t, index) => {
+                const lastRemark = t.remarks?.length
+                  ? t.remarks.sort(
+                      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+                    )[0].text
+                  : "No Remarks";
+
                 return (
                   <TableRow key={t._id}>
                     <TableCell>{String(index + 1).padStart(4, "0")}</TableCell>
@@ -127,31 +237,9 @@ const AllTicket = () => {
                     <TableCell>{t.complainDate}</TableCell>
                     <TableCell>{t.complainTime}</TableCell>
                     <TableCell>{t.solvedDate}</TableCell>
-                    {/* <TableCell>{t.solvedTime}</TableCell> */}
                     <TableCell>{t.engName}</TableCell>
-                    {/* <TableCell>{t.engNameAnother}</TableCell> */}
-                    <TableCell>
-                      {t.remarks && t.remarks.length > 0
-                        ? (() => {
-                            const lastRemark = t.remarks
-                              .slice()
-                              .sort(
-                                (a, b) =>
-                                  new Date(b.timestamp) - new Date(a.timestamp)
-                              )[0];
-                            return (
-                              <Box>
-                                {/* <strong>{lastRemark.user?.name || "N/A"}:</strong>{" "} */}
-                                {lastRemark.text}{" "}
-                                {/* <em>
-                                                    ({new Date(lastRemark.timestamp).toLocaleString()}
-                                                    )
-                                                  </em> */}
-                              </Box>
-                            );
-                          })()
-                        : "No Remarks"}
-                    </TableCell>
+                    <TableCell>{lastRemark}</TableCell>
+
                     <TableCell>
                       <Box
                         sx={{
@@ -160,7 +248,6 @@ const AllTicket = () => {
                           padding: "4px 8px",
                           borderRadius: "6px",
                           textAlign: "center",
-                          fontSize: "12px",
                         }}
                       >
                         {t.closed === "Yes"
@@ -170,6 +257,7 @@ const AllTicket = () => {
                           : "Open"}
                       </Box>
                     </TableCell>
+
                     <TableCell>
                       <Link to={`/dashboard/ticketdetailsbyid/${t._id}`}>
                         <Button size="small" variant="contained">
@@ -177,6 +265,7 @@ const AllTicket = () => {
                         </Button>
                       </Link>
                     </TableCell>
+
                     <TableCell>
                       <DeleteIcon
                         onClick={() => HandleDelete(t._id)}
@@ -187,7 +276,6 @@ const AllTicket = () => {
                           "&:hover": {
                             color: "error.dark",
                             transform: "scale(1.15)",
-                            transition: "0.2s",
                           },
                         }}
                       />
