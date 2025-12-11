@@ -13,6 +13,7 @@ import DashboardOverView from "./components/DashboardOverView";
 import Login from "./components/login";
 import CreateUser from "./components/CreateUser";
 import TicketDetaisById from "./components/TicketDetaisById";
+import MyTickets from "./components/MyTickets";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           }
         >
           <Route path="dashboardview" element={<DashboardOverView />} />
+          <Route path="mytickets" element={<MyTickets />} />
           <Route path="create" element={<CreateTicket />} />
           <Route path="pending" element={<Pending />} />
           <Route path="solve" element={<Solved />} />

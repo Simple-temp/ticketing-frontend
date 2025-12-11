@@ -19,23 +19,24 @@ import SpeedIcon from "@mui/icons-material/Speed";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import PersonIcon from "@mui/icons-material/Person";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import LogoutIcon from '@mui/icons-material/Logout';
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const navItems = [
   { to: "dashboardview", text: "Dashboard View", icon: <DashboardIcon /> },
+  { to: "mytickets", text: "My Tickets", icon: <PersonIcon /> },
   { to: "allticket", text: "All Tickets", icon: <ListAltIcon /> },
   { to: "create", text: "Create Ticket", icon: <CreateIcon /> },
   { to: "pending", text: "Pending", icon: <PendingActionsIcon /> },
   { to: "solve", text: "Solved", icon: <DoneAllIcon /> },
   { to: "macissue", text: "MAC Issue", icon: <LaptopMacIcon /> },
   { to: "bwissue", text: "BW Issue", icon: <SpeedIcon /> },
-  { to: "individualreport", text: "Individual Report", icon: <PersonIcon /> },
+  // { to: "individualreport", text: "Individual Report", icon: <PersonIcon /> },
   { to: "addnewuser", text: "Add New User", icon: <PersonAddIcon /> },
 ];
 
 const Sidebar = () => {
   const navigate = useNavigate();
-const storedUser = JSON.parse(localStorage.getItem("user"));
+  const storedUser = JSON.parse(localStorage.getItem("user"));
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -87,7 +88,7 @@ const storedUser = JSON.parse(localStorage.getItem("user"));
           >
             {({ isActive }) => (
               <ListItemButton selected={isActive}>
-                <ListItemIcon style={{color:"#fff"}} >{it.icon}</ListItemIcon>
+                <ListItemIcon style={{ color: "#fff" }}>{it.icon}</ListItemIcon>
                 <ListItemText primary={it.text} />
               </ListItemButton>
             )}
@@ -99,7 +100,7 @@ const storedUser = JSON.parse(localStorage.getItem("user"));
       <Box sx={{ padding: "1rem" }}>
         <ListItemButton onClick={handleLogout}>
           <ListItemIcon>
-            <LogoutIcon style={{color:"#fff"}}/>
+            <LogoutIcon style={{ color: "#fff" }} />
           </ListItemIcon>
           <ListItemText primary="Logout" />
         </ListItemButton>

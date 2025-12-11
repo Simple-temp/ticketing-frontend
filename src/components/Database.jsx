@@ -562,5 +562,6 @@ export const clientListAll = [
   "Zakia_Online",
   "Porshuram Kamrul",
   "ANL_Maijdee With Italy Broadband",
-  "Amratuli online"
+  "Amratuli online",
+  "Imaginex"
 ];
