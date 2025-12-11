@@ -25,6 +25,8 @@ const API_URL = "http://192.168.12.62:5000/api/ticket/all";
 const AllTicket = () => {
   const [ticketList, setTicketList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const loggedInUser = storedUser?.name;
 
   const [page, setPage] = useState(1);
   const rowsPerPage = 6;
@@ -125,6 +127,55 @@ const AllTicket = () => {
     toast.success("Excel file exported!");
   };
 
+  // Filter tickets for logged in engineer
+  useEffect(() => {
+    if (!loggedInUser) return;
+
+    const userTickets = ticketList.filter((t) => t.engName === loggedInUser);
+
+    setFilteredList(userTickets);
+  }, [ticketList, loggedInUser]);
+
+  // EXPORT FUNCTION
+  const exportToExcelMy = () => {
+    if (filteredList.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const excelData = filteredList.map((t) => {
+      const lastRemark = t.remarks?.length
+        ? t.remarks.sort(
+            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+          )[0].text
+        : "";
+
+      return {
+        Sn: t.Sn,
+        clientType: t.clientType,
+        clientName: t.clientName,
+        issue: t.issue,
+        complainDate: t.complainDate,
+        complainTime: t.complainTime,
+        solvedDate: t.solvedDate,
+        solvedTime: t.solvedTime,
+        sTime: t.sTime,
+        engName: t.engName,
+        engNameAnother: t.engNameAnother,
+        lastRemark: lastRemark,
+        closed: t.closed,
+        pending: t.pending,
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "My Tickets");
+
+    XLSX.writeFile(workbook, "my_tickets.xlsx");
+    toast.success("Excel exported successfully!");
+  };
+
   // Pagination
   const paginatedData = filteredList.slice(
     (page - 1) * rowsPerPage,
@@ -171,6 +222,9 @@ const AllTicket = () => {
 
           <Button variant="contained" color="success" onClick={exportToExcel}>
             Export Excel
+          </Button>
+          <Button variant="contained" color="success" onClick={exportToExcelMy}>
+            Export Excel Only Me
           </Button>
         </Box>
 
