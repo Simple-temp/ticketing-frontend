@@ -80,28 +80,46 @@ const MyTickets = () => {
 
     if (clientType) list = list.filter((t) => t.clientType === clientType);
 
-    if (statusFilter === "closed") list = list.filter((t) => t.closed === "Yes");
-    if (statusFilter === "pending") list = list.filter((t) => t.closed !== "Yes");
+    if (statusFilter === "closed")
+      list = list.filter((t) => t.closed === "Yes");
+    if (statusFilter === "pending")
+      list = list.filter((t) => t.closed !== "Yes");
 
     return list;
   }, [tickets, clientName, clientType, statusFilter]);
 
   const exportExcel = () => {
-    if (!filtered.length) return alert("No data to export");
+    if (!filtered.length) {
+      return alert("No data to export");
+    }
 
-    const arr = filtered.map((t) => ({
-      SN: t.Sn,
-      ClientName: t.clientName,
-      ClientType: t.clientType,
-      Issue: t.issue,
-      ComplainDate: t.complainDate,
-      ComplainTime: t.complainTime,
-      SolvedTime: t.solvedTime,
-      SolvedDate: t.solvedDate,
-      Status: t.closed === "Yes" ? "Closed" : "Pending",
-    }));
+    // Map filtered data to include last remark
+    const excelData = filtered.map((t) => {
+      const lastRemark = t.remarks?.length
+        ? t.remarks.sort(
+            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+          )[0].text
+        : "";
 
-    const ws = XLSX.utils.json_to_sheet(arr);
+      return {
+        SN: t.Sn,
+        ClientName: t.clientName,
+        ClientType: t.clientType,
+        Issue: t.issue,
+        ComplainDate: t.complainDate,
+        ComplainTime: t.complainTime,
+        SolvedDate: t.solvedDate,
+        SolvedTime: t.solvedTime,
+        sTime: t.sTime,
+        EngName: t.engName,
+        EngNameAnother: t.engNameAnother,
+        LastRemark: lastRemark,
+        Status: t.closed === "Yes" ? "Closed" : "Pending",
+        Pending: t.pending,
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(excelData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "MyTickets");
     XLSX.writeFile(wb, "MyTickets.xlsx");
@@ -125,7 +143,9 @@ const MyTickets = () => {
     <Box sx={{ background: "#071633", minHeight: "100vh", p: 4 }}>
       <Box sx={{ maxWidth: 1300, mx: "auto", color: "white" }}>
         <Box display="flex" justifyContent="space-between" mb={3}>
-          <Typography variant="h5" fontWeight={700}>My Tickets {tickets.length} </Typography>
+          <Typography variant="h5" fontWeight={700}>
+            My Tickets {tickets.length}{" "}
+          </Typography>
 
           <Box>
             <Tooltip title="Export Excel">
@@ -162,7 +182,9 @@ const MyTickets = () => {
               sx={{ bgcolor: "white", borderRadius: 1, width: 160 }}
             >
               {clientTypeOptions.map((v) => (
-                <MenuItem key={v} value={v}>{v || "All"}</MenuItem>
+                <MenuItem key={v} value={v}>
+                  {v || "All"}
+                </MenuItem>
               ))}
             </TextField>
 
@@ -194,7 +216,7 @@ const MyTickets = () => {
           <TableContainer sx={{ maxHeight: 650 }}>
             <Table stickyHeader>
               <TableHead>
-                <TableRow sx={{ bgcolor: "#082845"}}>
+                <TableRow sx={{ bgcolor: "#082845" }}>
                   <TableCell sx={{ color: "black" }}>SN</TableCell>
                   <TableCell sx={{ color: "black" }}>Client</TableCell>
                   <TableCell sx={{ color: "black" }}>Type</TableCell>
@@ -236,8 +258,7 @@ const MyTickets = () => {
                               display: "inline-block",
                               bgcolor:
                                 t.closed === "Yes" ? "#d1e7dd" : "#f8d7da",
-                              color:
-                                t.closed === "Yes" ? "#0f5132" : "#842029",
+                              color: t.closed === "Yes" ? "#0f5132" : "#842029",
                             }}
                           >
                             {t.closed === "Yes" ? "Closed" : "Pending"}
