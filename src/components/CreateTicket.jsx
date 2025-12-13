@@ -12,7 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { issueListAll, clientListAll } from "./Database";
 
-const API_URL = "http://192.168.12.62:5000/api/ticket/create";
+const API_URL = "http://localhost:5000/api/ticket/create";
 
 const CreateTicket = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -35,43 +35,15 @@ const CreateTicket = () => {
   });
 
   // -------------------------------
-  //  100% EXACT BANGLADESH TIME
+  //  BANGLADESH TIME (ONLY TIME)
   // -------------------------------
-  const getBangladeshDateTime = () => {
-    const bdString = new Date().toLocaleString("en-US", {
+  const getBangladeshTime = () => {
+    return new Date().toLocaleTimeString("en-US", {
       timeZone: "Asia/Dhaka",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
-
-    const bdDate = new Date(bdString);
-
-    // date example: "9 Dec"
-    const day = bdDate.getDate();
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const month = months[bdDate.getMonth()];
-    const dateFormatted = `${day} ${month}`;
-
-    // time example: "5:27 PM"
-    let hour = bdDate.getHours();
-    const minute = String(bdDate.getMinutes()).padStart(2, "0");
-    const ampm = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12 || 12;
-
-    const timeFormatted = `${hour}:${minute} ${ampm}`;
-
-    return { dateFormatted, timeFormatted, bdDateObj: bdDate };
   };
 
   // -------------------------------
@@ -83,13 +55,14 @@ const CreateTicket = () => {
       return;
     }
 
-    const { dateFormatted, timeFormatted, bdDateObj } = getBangladeshDateTime();
-
     const sendData = {
       ...formData,
-      complainDate: dateFormatted,
-      complainTime: timeFormatted,
-      solvedDate: "",
+
+      // ❌ DO NOT SEND complainDate
+      // ✅ MongoDB will auto set current date
+
+      complainTime: getBangladeshTime(),
+      solvedDate: null,
       solvedTime: "",
       sTime: "00:00",
       engName: currentEng,
@@ -99,7 +72,7 @@ const CreateTicket = () => {
             {
               text: formData.remarks,
               user: storedUser?._id || null,
-              timestamp: bdDateObj.toISOString(),
+              timestamp: new Date(), // REAL DATE OBJECT
             },
           ]
         : [],

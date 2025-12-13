@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 
-const API_URL = "http://192.168.12.62:5000/api/user/login"; // backend login route
+const API_URL = "http://localhost:5000/api/user/login"; // backend login route
 
 const Login = () => {
   const [userId, setUserId] = useState("");
@@ -50,7 +50,10 @@ const Login = () => {
       <ToastContainer position="top-center" />
 
       <Container maxWidth="sm" sx={{ marginTop: "6rem" }}>
-        <Paper elevation={6} sx={{ padding: "2rem", backgroundColor: "#001f3f", color: "white" }}>
+        <Paper
+          elevation={6}
+          sx={{ padding: "2rem", backgroundColor: "#001f3f", color: "white" }}
+        >
           <Typography variant="h4" align="center" gutterBottom>
             Login
           </Typography>

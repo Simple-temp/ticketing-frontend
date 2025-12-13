@@ -23,7 +23,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import ClearIcon from "@mui/icons-material/Clear";
 import * as XLSX from "xlsx";
 
-const API_BASE = "http://192.168.12.62:5000";
+const API_BASE = "http://localhost:5000";
 
 const MyTickets = () => {
   const [tickets, setTickets] = useState([]);
@@ -244,7 +244,7 @@ const MyTickets = () => {
                         <TableCell>{t.clientName}</TableCell>
                         <TableCell>{t.clientType}</TableCell>
                         <TableCell>{t.issue}</TableCell>
-                        <TableCell>{t.complainDate}</TableCell>
+                        <TableCell>{new Date(t.complainDate).toLocaleDateString("en-GB")}</TableCell>
                         <TableCell>{t.complainTime}</TableCell>
                         <TableCell>{t.solvedTime}</TableCell>
 

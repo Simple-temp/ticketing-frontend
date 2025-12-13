@@ -20,7 +20,7 @@ import { ToastContainer, toast } from "react-toastify";
 import DeleteIcon from "@mui/icons-material/Delete";
 import * as XLSX from "xlsx";
 
-const API_URL = "http://192.168.12.62:5000/api/ticket/all";
+const API_URL = "http://localhost:5000/api/ticket/all";
 
 const AllTicket = () => {
   const [ticketList, setTicketList] = useState([]);
@@ -127,55 +127,6 @@ const AllTicket = () => {
     toast.success("Excel file exported!");
   };
 
-  // Filter tickets for logged in engineer
-  useEffect(() => {
-    if (!loggedInUser) return;
-
-    const userTickets = ticketList.filter((t) => t.engName === loggedInUser);
-
-    setFilteredList(userTickets);
-  }, [ticketList, loggedInUser]);
-
-  // EXPORT FUNCTION
-  const exportToExcelMy = () => {
-    if (filteredList.length === 0) {
-      toast.error("No data to export");
-      return;
-    }
-
-    const excelData = filteredList.map((t) => {
-      const lastRemark = t.remarks?.length
-        ? t.remarks.sort(
-            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-          )[0].text
-        : "";
-
-      return {
-        Sn: t.Sn,
-        clientType: t.clientType,
-        clientName: t.clientName,
-        issue: t.issue,
-        complainDate: t.complainDate,
-        complainTime: t.complainTime,
-        solvedDate: t.solvedDate,
-        solvedTime: t.solvedTime,
-        sTime: t.sTime,
-        engName: t.engName,
-        engNameAnother: t.engNameAnother,
-        lastRemark: lastRemark,
-        closed: t.closed,
-        pending: t.pending,
-      };
-    });
-
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "My Tickets");
-
-    XLSX.writeFile(workbook, "my_tickets.xlsx");
-    toast.success("Excel exported successfully!");
-  };
-
   // Pagination
   const paginatedData = filteredList.slice(
     (page - 1) * rowsPerPage,
@@ -198,7 +149,7 @@ const AllTicket = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://192.168.12.62:5000/api/ticket/${id}`, {
+      await axios.delete(`http://localhost:5000/api/ticket/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -223,9 +174,9 @@ const AllTicket = () => {
           <Button variant="contained" color="success" onClick={exportToExcel}>
             Export Excel
           </Button>
-          <Button variant="contained" color="success" onClick={exportToExcelMy}>
+          {/* <Button variant="contained" color="success" onClick={exportToExcelMy}>
             Export Excel Only Me
-          </Button>
+          </Button> */}
         </Box>
 
         {/* SEARCH ROW */}
@@ -288,9 +239,12 @@ const AllTicket = () => {
                     <TableCell>{t.clientType}</TableCell>
                     <TableCell>{t.clientName}</TableCell>
                     <TableCell>{t.issue}</TableCell>
-                    <TableCell>{t.complainDate}</TableCell>
+                    <TableCell>
+                      {new Date(t.complainDate).toLocaleDateString("en-GB")}
+                    </TableCell>
+                    {/* new Date(ticket.complainDate).toLocaleDateString("en-GB") */}
                     <TableCell>{t.complainTime}</TableCell>
-                    <TableCell>{t.solvedDate}</TableCell>
+                    <TableCell>{new Date(t.solvedDate).toLocaleDateString("en-GB")}</TableCell>
                     <TableCell>{t.engName}</TableCell>
                     <TableCell>{lastRemark}</TableCell>
 

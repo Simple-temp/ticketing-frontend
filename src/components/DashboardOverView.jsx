@@ -10,7 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = "http://192.168.12.62:5000/api/ticket/all";
+const API_URL = "http://localhost:5000/api/ticket/all";
 
 const DashboardOverView = () => {
   const [tickets, setTickets] = useState([]);

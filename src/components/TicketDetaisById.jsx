@@ -17,7 +17,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { ToastContainer, toast } from "react-toastify";
 
-const API_URL = "http://192.168.12.62:5000/api/ticket";
+const API_URL = "http://localhost:5000/api/ticket";
 
 const TicketDetailsById = () => {
   const { id } = useParams();

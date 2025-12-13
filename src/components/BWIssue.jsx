@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 
-const API_URL = "http://192.168.12.62:5000/api/ticket/all";
+const API_URL = "http://localhost:5000/api/ticket/all";
 
 const BWIssue = () => {
   const [tickets, setTickets] = useState([]);
