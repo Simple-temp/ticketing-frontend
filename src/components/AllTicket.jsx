@@ -25,8 +25,8 @@ const API_URL = "http://localhost:5000/api/ticket/all";
 const AllTicket = () => {
   const [ticketList, setTicketList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
-  const storedUser = JSON.parse(localStorage.getItem("user"));
-  const loggedInUser = storedUser?.name;
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const [page, setPage] = useState(1);
   const rowsPerPage = 6;
@@ -81,9 +81,36 @@ const AllTicket = () => {
       );
     }
 
+    if (startDate.trim() !== "") {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0); // start of day
+      data = data.filter((t) => {
+        const complain = new Date(t.complainDate);
+        complain.setHours(0, 0, 0, 0);
+        return complain >= start;
+      });
+    }
+
+    if (endDate.trim() !== "") {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // end of day
+      data = data.filter((t) => {
+        const complain = new Date(t.complainDate);
+        complain.setHours(0, 0, 0, 0);
+        return complain <= end;
+      });
+    }
+
     setFilteredList(data);
     setPage(1);
-  }, [searchEng, searchClientType, ticketList, searchPending]);
+  }, [
+    searchEng,
+    searchClientType,
+    ticketList,
+    searchPending,
+    startDate,
+    endDate,
+  ]);
 
   // -----------------------------
   // EXPORT EXCEL FUNCTION
@@ -106,9 +133,11 @@ const AllTicket = () => {
         clientType: t.clientType,
         clientName: t.clientName,
         issue: t.issue,
-        complainDate: t.complainDate,
+        complainDate: new Date(t.complainDate).toLocaleDateString("en-GB"),
         complainTime: t.complainTime,
-        solvedDate: t.solvedDate,
+        solvedDate: t.solvedDate
+          ? new Date(t.solvedDate).toLocaleDateString("en-GB")
+          : "",
         solvedTime: t.solvedTime,
         sTime: t.sTime,
         engName: t.engName,
@@ -204,6 +233,25 @@ const AllTicket = () => {
             size="small"
             sx={{ width: 250 }}
           />
+
+          <TextField
+            label="Start Date"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            sx={{ bgcolor: "white", borderRadius: 1, width: 160 }}
+          />
+          <TextField
+            label="End Date"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            sx={{ bgcolor: "white", borderRadius: 1, width: 160 }}
+          />
         </Box>
 
         <TableContainer component={Paper}>
@@ -244,7 +292,9 @@ const AllTicket = () => {
                     </TableCell>
                     {/* new Date(ticket.complainDate).toLocaleDateString("en-GB") */}
                     <TableCell>{t.complainTime}</TableCell>
-                    <TableCell>{new Date(t.solvedDate).toLocaleDateString("en-GB")}</TableCell>
+                    <TableCell>
+                      {new Date(t.solvedDate).toLocaleDateString("en-GB")}
+                    </TableCell>
                     <TableCell>{t.engName}</TableCell>
                     <TableCell>{lastRemark}</TableCell>
 

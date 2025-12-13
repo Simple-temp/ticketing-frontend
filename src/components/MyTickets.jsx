@@ -33,6 +33,8 @@ const MyTickets = () => {
   const [clientName, setClientName] = useState("");
   const [clientType, setClientType] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // pagination
   const [page, setPage] = useState(0);
@@ -48,7 +50,6 @@ const MyTickets = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // SORT: Last ticket first
         const sorted = res.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
@@ -85,15 +86,27 @@ const MyTickets = () => {
     if (statusFilter === "pending")
       list = list.filter((t) => t.closed !== "Yes");
 
+    if (startDate)
+      list = list.filter(
+        (t) => new Date(t.complainDate) >= new Date(startDate)
+      );
+
+    if (endDate)
+      list = list.filter((t) => new Date(t.complainDate) <= new Date(endDate));
+
     return list;
-  }, [tickets, clientName, clientType, statusFilter]);
+  }, [tickets, clientName, clientType, statusFilter, startDate, endDate]);
 
   const exportExcel = () => {
     if (!filtered.length) {
       return alert("No data to export");
     }
 
-    // Map filtered data to include last remark
+    const formatDate = (d) => {
+      if (!d) return "";
+      return new Date(d).toLocaleDateString("en-GB"); // DD/MM/YYYY format
+    };
+
     const excelData = filtered.map((t) => {
       const lastRemark = t.remarks?.length
         ? t.remarks.sort(
@@ -106,16 +119,16 @@ const MyTickets = () => {
         ClientName: t.clientName,
         ClientType: t.clientType,
         Issue: t.issue,
-        ComplainDate: t.complainDate,
-        ComplainTime: t.complainTime,
-        SolvedDate: t.solvedDate,
-        SolvedTime: t.solvedTime,
-        sTime: t.sTime,
-        EngName: t.engName,
-        EngNameAnother: t.engNameAnother,
+        ComplainDate: formatDate(t.complainDate),
+        ComplainTime: t.complainTime || "",
+        SolvedDate: formatDate(t.solvedDate),
+        SolvedTime: t.solvedTime || "",
+        sTime: t.sTime || "",
+        EngName: t.engName || "",
+        EngNameAnother: t.engNameAnother || "",
         LastRemark: lastRemark,
         Status: t.closed === "Yes" ? "Closed" : "Pending",
-        Pending: t.pending,
+        Pending: t.pending || "",
       };
     });
 
@@ -129,6 +142,8 @@ const MyTickets = () => {
     setClientName("");
     setClientType("");
     setStatusFilter("");
+    setStartDate("");
+    setEndDate("");
     setPage(0);
   };
 
@@ -144,7 +159,7 @@ const MyTickets = () => {
       <Box sx={{ maxWidth: 1300, mx: "auto", color: "white" }}>
         <Box display="flex" justifyContent="space-between" mb={3}>
           <Typography variant="h5" fontWeight={700}>
-            My Tickets {tickets.length}{" "}
+            My Tickets {tickets.length}
           </Typography>
 
           <Box>
@@ -201,6 +216,26 @@ const MyTickets = () => {
               <MenuItem value="pending">Pending</MenuItem>
             </TextField>
 
+            {/* Date Range */}
+            <TextField
+              label="Start Date"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              sx={{ bgcolor: "white", borderRadius: 1, width: 160 }}
+            />
+            <TextField
+              label="End Date"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              sx={{ bgcolor: "white", borderRadius: 1, width: 160 }}
+            />
+
             <Button
               variant="contained"
               sx={{ ml: "auto", background: "#1976d2" }}
@@ -244,7 +279,9 @@ const MyTickets = () => {
                         <TableCell>{t.clientName}</TableCell>
                         <TableCell>{t.clientType}</TableCell>
                         <TableCell>{t.issue}</TableCell>
-                        <TableCell>{new Date(t.complainDate).toLocaleDateString("en-GB")}</TableCell>
+                        <TableCell>
+                          {new Date(t.complainDate).toLocaleDateString("en-GB")}
+                        </TableCell>
                         <TableCell>{t.complainTime}</TableCell>
                         <TableCell>{t.solvedTime}</TableCell>
 
