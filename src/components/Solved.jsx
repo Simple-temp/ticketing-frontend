@@ -13,6 +13,7 @@ import {
   Chip,
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
+import { motion } from "framer-motion";
 
 const API_URL = "http://localhost:5000/api/ticket/all";
 
@@ -28,107 +29,149 @@ const Solved = () => {
         const res = await axios.get(API_URL, { headers });
         const solvedTickets = res.data.filter((t) => t.closed === "Yes");
         setTickets(solvedTickets);
-        setLoading(false);
       } catch (error) {
         console.error(error);
         toast.error("Failed to fetch tickets");
+      } finally {
         setLoading(false);
       }
     };
     fetchTickets();
   }, []);
 
-  const getStatusColor = (status) => {
-    return "#4CAF50"; // green for solved tickets
-  };
-
   if (loading) {
     return (
-      <Box p={3} textAlign="center">
-        <CircularProgress />
+      <Box p={4} textAlign="center">
+        <CircularProgress sx={{ color: "#90caf9" }} />
       </Box>
     );
   }
 
   return (
-    <Box p={3}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0a1931, #102a43)",
+        p: 4,
+      }}
+    >
       <ToastContainer position="top-center" />
-      <Typography variant="h5" mb={3} sx={{ fontWeight: 600 }}>
-        Solved Tickets {tickets.length}
+
+      <Typography
+        variant="h5"
+        mb={3}
+        sx={{ fontWeight: 600, color: "#e3f2fd" }}
+      >
+        Solved Tickets ({tickets.length})
       </Typography>
 
-      <Paper sx={{ p: 2, boxShadow: 3, borderRadius: 2 }}>
-        <Table sx={{ minWidth: 900 }}>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#2e7d32" }}>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Ticket ID
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Client Name
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Client Type
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Issue
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Engineer
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Complain Date
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Solved Date
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Status
-              </TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {tickets.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} align="center">
-                  No solved tickets found
-                </TableCell>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <Paper
+          sx={{
+            p: 2,
+            borderRadius: 3,
+            backgroundColor: "#0d1b2a",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+          }}
+        >
+          <Table sx={{ minWidth: 900 }}>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#1b5e20" }}>
+                {[
+                  "Ticket ID",
+                  "Client Name",
+                  "Client Type",
+                  "Issue",
+                  "Engineer",
+                  "Complain Date",
+                  "Solved Date",
+                  "Status",
+                ].map((head) => (
+                  <TableCell key={head} sx={headerStyle}>
+                    {head}
+                  </TableCell>
+                ))}
               </TableRow>
-            ) : (
-              tickets.map((ticket, idx) => (
-                <TableRow
-                  key={ticket._id}
-                  sx={{
-                    backgroundColor: idx % 2 === 0 ? "#f9f9f9" : "white",
-                    "&:hover": { backgroundColor: "#e8f5e9" },
-                  }}
-                >
-                  <TableCell>{ticket.Sn || ticket._id}</TableCell>
-                  <TableCell>{ticket.clientName}</TableCell>
-                  <TableCell>{ticket.clientType}</TableCell>
-                  <TableCell>{ticket.issue}</TableCell>
-                  <TableCell>{ticket.engName}</TableCell>
-                  <TableCell>{ticket.complainDate}</TableCell>
-                  <TableCell>{ticket.solvedDate || "N/A"}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label="Closed"
-                      sx={{
-                        backgroundColor: getStatusColor(ticket.closed),
-                        color: "white",
-                        fontWeight: 600,
-                      }}
-                    />
+            </TableHead>
+
+            <TableBody>
+              {tickets.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={cellStyle}>
+                    No solved tickets found
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </Paper>
+              ) : (
+                tickets.map((ticket, idx) => (
+                  <TableRow
+                    key={ticket._id}
+                    component={motion.tr}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: idx * 0.05 }}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "#1e3a5f",
+                      },
+                    }}
+                  >
+                    <TableCell sx={cellStyle}>
+                      {ticket.Sn || ticket._id}
+                    </TableCell>
+                    <TableCell sx={cellStyle}>{ticket.clientName}</TableCell>
+                    <TableCell sx={cellStyle}>{ticket.clientType}</TableCell>
+                    <TableCell sx={cellStyle}>{ticket.issue}</TableCell>
+                    <TableCell sx={cellStyle}>{ticket.engName}</TableCell>
+                    <TableCell sx={cellStyle}>
+                      {ticket.complainDate
+                        ? new Date(ticket.complainDate).toLocaleDateString(
+                            "en-GB",
+                            { day: "2-digit", month: "short" }
+                          )
+                        : "-"}
+                    </TableCell>
+                    <TableCell sx={cellStyle}>
+                      {ticket.solvedDate
+                        ? new Date(ticket.solvedDate).toLocaleDateString(
+                            "en-GB",
+                            { day: "2-digit", month: "short" }
+                          )
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell sx={cellStyle}>
+                      <Chip
+                        label="Closed"
+                        sx={{
+                          backgroundColor: "#2e7d32",
+                          color: "white",
+                          fontWeight: 600,
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </Paper>
+      </motion.div>
     </Box>
   );
+};
+
+const headerStyle = {
+  color: "#a5d6a7",
+  fontWeight: 600,
+  borderBottom: "1px solid #243b55",
+};
+
+const cellStyle = {
+  color: "#e3f2fd",
+  borderBottom: "1px solid #243b55",
 };
 
 export default Solved;

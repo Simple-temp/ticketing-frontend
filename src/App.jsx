@@ -14,6 +14,7 @@ import Login from "./components/login";
 import CreateUser from "./components/CreateUser";
 import TicketDetaisById from "./components/TicketDetaisById";
 import MyTickets from "./components/MyTickets";
+import UserList from "./components/UserList";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
           <Route path="allticket" element={<AllTicket />} />
           <Route path="individualreport" element={<IndividualReport />} />
           <Route path="addnewuser" element={<AddNewUser />} />
+          <Route path="userlist" element={<UserList/>}/>
           <Route path="ticketdetailsbyid/:id" element={<TicketDetaisById />} />
 
           <Route index element={<Navigate to="create" replace />} />

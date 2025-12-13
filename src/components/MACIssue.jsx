@@ -13,6 +13,7 @@ import {
   Chip,
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
+import { motion } from "framer-motion";
 
 const API_URL = "http://localhost:5000/api/ticket/all";
 
@@ -28,10 +29,10 @@ const MACIssue = () => {
         const res = await axios.get(API_URL, { headers });
         const macTickets = res.data.filter((t) => t.clientType === "MAC");
         setTickets(macTickets);
-        setLoading(false);
       } catch (error) {
         console.error(error);
         toast.error("Failed to fetch tickets");
+      } finally {
         setLoading(false);
       }
     };
@@ -39,106 +40,140 @@ const MACIssue = () => {
   }, []);
 
   const getStatusColor = (status) => {
-    if (status === "Closed") return "#4CAF50"; // green
-    if (status === "Pending") return "#FF9800"; // orange
-    return "#9E9E9E"; // gray for open/other
+    if (status === "Closed") return "#4CAF50";
+    if (status === "Pending") return "#FF9800";
+    return "#9E9E9E";
   };
 
   if (loading) {
     return (
-      <Box p={3} textAlign="center">
-        <CircularProgress />
+      <Box p={4} textAlign="center">
+        <CircularProgress sx={{ color: "#90caf9" }} />
       </Box>
     );
   }
 
   return (
-    <Box p={3}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0a1931, #102a43)",
+        p: 4,
+      }}
+    >
       <ToastContainer position="top-center" />
-      <Typography variant="h5" mb={3} sx={{ fontWeight: 600 }}>
-        MAC Client Tickets {tickets.length}
-      </Typography>
 
-      <Paper sx={{ p: 2, boxShadow: 3, borderRadius: 2 }}>
-        <Table sx={{ minWidth: 900 }}>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#1976d2" }}>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Ticket ID
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Client Name
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Issue
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Engineer
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Complain Date
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Complain Time
-              </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: 600 }}>
-                Status
-              </TableCell>
-            </TableRow>
-          </TableHead>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <Typography
+          variant="h5"
+          mb={3}
+          sx={{ fontWeight: 600, color: "#e3f2fd" }}
+        >
+          MAC Client Tickets ({tickets.length})
+        </Typography>
 
-          <TableBody>
-            {tickets.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} align="center">
-                  No MAC client tickets found
-                </TableCell>
+        <Paper
+          sx={{
+            p: 2,
+            borderRadius: 3,
+            backgroundColor: "#0d1b2a",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+          }}
+        >
+          <Table sx={{ minWidth: 900 }}>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#1b263b" }}>
+                {[
+                  "Ticket ID",
+                  "Client Name",
+                  "Issue",
+                  "Engineer",
+                  "Complain Date",
+                  "Complain Time",
+                  "Status",
+                ].map((head) => (
+                  <TableCell key={head} sx={headerStyle}>
+                    {head}
+                  </TableCell>
+                ))}
               </TableRow>
-            ) : (
-              tickets.map((ticket, idx) => (
-                <TableRow
-                  key={ticket._id}
-                  sx={{
-                    backgroundColor: idx % 2 === 0 ? "#f5f5f5" : "white",
-                    "&:hover": { backgroundColor: "#e3f2fd" },
-                  }}
-                >
-                  <TableCell>{ticket.Sn || ticket._id}</TableCell>
-                  <TableCell>{ticket.clientName}</TableCell>
-                  <TableCell>{ticket.issue}</TableCell>
-                  <TableCell>{ticket.engName}</TableCell>
-                  <TableCell>{ticket.complainDate}</TableCell>
-                  <TableCell>{ticket.complainTime}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={
-                        ticket.closed === "Yes"
-                          ? "Closed"
-                          : ticket.pending === "Yes"
-                          ? "Pending"
-                          : "Open"
-                      }
-                      sx={{
-                        backgroundColor: getStatusColor(
+            </TableHead>
+
+            <TableBody>
+              {tickets.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} align="center" sx={cellStyle}>
+                    No MAC client tickets found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                tickets.map((ticket, idx) => (
+                  <TableRow
+                    key={ticket._id}
+                    component={motion.tr}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: idx * 0.05 }}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "#1e3a5f",
+                      },
+                    }}
+                  >
+                    <TableCell sx={cellStyle}>
+                      {ticket.Sn || ticket._id}
+                    </TableCell>
+                    <TableCell sx={cellStyle}>{ticket.clientName}</TableCell>
+                    <TableCell sx={cellStyle}>{ticket.issue}</TableCell>
+                    <TableCell sx={cellStyle}>{ticket.engName}</TableCell>
+                    <TableCell sx={cellStyle}>{ticket.complainDate}</TableCell>
+                    <TableCell sx={cellStyle}>{ticket.complainTime}</TableCell>
+                    <TableCell sx={cellStyle}>
+                      <Chip
+                        label={
                           ticket.closed === "Yes"
                             ? "Closed"
                             : ticket.pending === "Yes"
                             ? "Pending"
                             : "Open"
-                        ),
-                        color: "white",
-                        fontWeight: 600,
-                      }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </Paper>
+                        }
+                        sx={{
+                          backgroundColor: getStatusColor(
+                            ticket.closed === "Yes"
+                              ? "Closed"
+                              : ticket.pending === "Yes"
+                              ? "Pending"
+                              : "Open"
+                          ),
+                          color: "white",
+                          fontWeight: 600,
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </Paper>
+      </motion.div>
     </Box>
   );
+};
+
+const headerStyle = {
+  color: "#90caf9",
+  fontWeight: 600,
+  borderBottom: "1px solid #243b55",
+};
+
+const cellStyle = {
+  color: "#e3f2fd",
+  borderBottom: "1px solid #243b55",
 };
 
 export default MACIssue;

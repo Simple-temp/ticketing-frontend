@@ -31,6 +31,7 @@ const navItems = [
   { to: "macissue", text: "MAC Issue", icon: <LaptopMacIcon /> },
   { to: "bwissue", text: "BW Issue", icon: <SpeedIcon /> },
   // { to: "individualreport", text: "Individual Report", icon: <PersonIcon /> },
+  { to: "userlist", text: "User List", icon: <PersonIcon /> },
   { to: "addnewuser", text: "Add New User", icon: <PersonAddIcon /> },
 ];
 
