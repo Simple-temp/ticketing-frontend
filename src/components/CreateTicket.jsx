@@ -12,7 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { issueListAll, clientListAll } from "./Database";
 
-const API_URL = "http://192.168.12.62:5000/api/ticket/create";
+const API_URL = "http://localhost:5000/api/ticket/create";
 
 const CreateTicket = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -28,14 +28,21 @@ const CreateTicket = () => {
     clientName: "",
     issue: "",
     engName: currentEng,
-    engNameAnother: "",
+
+    // ✅ THIS IS IMPORTANT
+    engNameAnother: [
+      {
+        name: currentEng,
+      },
+    ],
+
     remarks: "",
     closed: "",
     pending: "Pending",
   });
 
   // -------------------------------
-  //  BANGLADESH TIME (ONLY TIME)
+  //  BANGLADESH TIME
   // -------------------------------
   const getBangladeshTime = () => {
     return new Date().toLocaleTimeString("en-US", {
@@ -58,21 +65,17 @@ const CreateTicket = () => {
     const sendData = {
       ...formData,
 
-      // ❌ DO NOT SEND complainDate
-      // ✅ MongoDB will auto set current date
-
       complainTime: getBangladeshTime(),
       solvedDate: null,
       solvedTime: "",
       sTime: "00:00",
-      engName: currentEng,
 
       remarks: formData.remarks
         ? [
             {
               text: formData.remarks,
               user: storedUser?._id || null,
-              timestamp: new Date(), // REAL DATE OBJECT
+              timestamp: new Date(),
             },
           ]
         : [],
@@ -112,11 +115,7 @@ const CreateTicket = () => {
               setFormData({ ...formData, clientType: val || "" })
             }
             renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Client Type *"
-                sx={{ width: "550px" }}
-              />
+              <TextField {...params} label="Client Type *" sx={{ width: "550px" }} />
             )}
           />
         </Grid>
@@ -130,11 +129,7 @@ const CreateTicket = () => {
               setFormData({ ...formData, clientName: val || "" })
             }
             renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Client Name *"
-                sx={{ width: "550px" }}
-              />
+              <TextField {...params} label="Client Name *" sx={{ width: "550px" }} />
             )}
           />
         </Grid>

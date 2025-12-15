@@ -20,7 +20,7 @@ import { ToastContainer, toast } from "react-toastify";
 import DeleteIcon from "@mui/icons-material/Delete";
 import * as XLSX from "xlsx";
 
-const API_URL = "http://192.168.12.62:5000/api/ticket/all";
+const API_URL = "http://localhost:5000/api/ticket/all";
 
 const AllTicket = () => {
   const [ticketList, setTicketList] = useState([]);
@@ -34,6 +34,7 @@ const AllTicket = () => {
   const [searchEng, setSearchEng] = useState("");
   const [searchClientType, setSearchClientType] = useState("");
   const [searchPending, setSearchPending] = useState("");
+  const [engname, setengName] = useState("");
 
   useEffect(() => {
     const loadTickets = async () => {
@@ -62,6 +63,12 @@ const AllTicket = () => {
   // -----------------------------
   useEffect(() => {
     let data = [...ticketList];
+
+    if (engname.trim() !== "") {
+      data = data.filter((t) =>
+        t.engName?.toLowerCase().includes(engname.toLowerCase())
+      );
+    }
 
     if (searchEng.trim() !== "") {
       data = data.filter((t) =>
@@ -110,6 +117,7 @@ const AllTicket = () => {
     searchPending,
     startDate,
     endDate,
+    engname
   ]);
 
   // -----------------------------
@@ -178,7 +186,7 @@ const AllTicket = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://192.168.12.62:5000/api/ticket/${id}`, {
+      await axios.delete(`http://localhost:5000/api/ticket/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -210,6 +218,14 @@ const AllTicket = () => {
 
         {/* SEARCH ROW */}
         <Box display="flex" gap={2} mt={2} mb={2}>
+          <TextField
+            label="Eng Name"
+            value={engname}
+            onChange={(e) => setengName(e.target.value)}
+            size="small"
+            sx={{ width: 250 }}
+          />
+
           <TextField
             label="Search Client Name"
             value={searchEng}
@@ -265,6 +281,7 @@ const AllTicket = () => {
                 <TableCell sx={{ color: "white" }}>Complain Date</TableCell>
                 <TableCell sx={{ color: "white" }}>Complain Time</TableCell>
                 <TableCell sx={{ color: "white" }}>Solved Date</TableCell>
+                <TableCell sx={{ color: "white" }}>Solved Time</TableCell>
                 <TableCell sx={{ color: "white" }}>Engineer</TableCell>
                 <TableCell sx={{ color: "white" }}>Latest Remark</TableCell>
                 <TableCell sx={{ color: "white" }}>Status</TableCell>
@@ -293,8 +310,11 @@ const AllTicket = () => {
                     {/* new Date(ticket.complainDate).toLocaleDateString("en-GB") */}
                     <TableCell>{t.complainTime}</TableCell>
                     <TableCell>
-                      { t.solvedDate ? new Date(t.solvedDate).toLocaleDateString("en-GB") :"" }
+                      {t.solvedDate
+                        ? new Date(t.solvedDate).toLocaleDateString("en-GB")
+                        : ""}
                     </TableCell>
+                    <TableCell>{t.solvedTime}</TableCell>
                     <TableCell>{t.engName}</TableCell>
                     <TableCell>{lastRemark}</TableCell>
 

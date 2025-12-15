@@ -14,7 +14,7 @@ import {
   Chip,
 } from "@mui/material";
 
-const API_URL = "http://192.168.12.62:5000/api/ticket/all"; // Replace with your backend URL
+const API_URL = "http://localhost:5000/api/ticket/all"; // Replace with your backend URL
 
 const IndividualReport = () => {
   const [ticketList, setTicketList] = useState([]);

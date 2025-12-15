@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 
-const API_URL = "http://192.168.12.62:5000/api/user/login"; // backend login route
+const API_URL = "http://localhost:5000/api/user/login"; // backend login route
 
 const Login = () => {
   const [userId, setUserId] = useState("");

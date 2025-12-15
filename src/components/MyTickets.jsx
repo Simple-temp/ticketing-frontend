@@ -24,7 +24,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import * as XLSX from "xlsx";
 import { Link } from "react-router-dom";
 
-const API_BASE = "http://192.168.12.62:5000";
+const API_BASE = "http://localhost:5000";
 
 const MyTickets = () => {
   const [tickets, setTickets] = useState([]);

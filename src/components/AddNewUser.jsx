@@ -3,7 +3,7 @@ import axios from "axios";
 import { Box, TextField, Button, Typography, Paper, Grid } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 
-const API_URL = "http://192.168.12.62:5000/api/user/register";
+const API_URL = "http://localhost:5000/api/user/register";
 
 const AddNewUser = () => {
   const token = localStorage.getItem("token");

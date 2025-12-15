@@ -10,5 +10,5 @@ createRoot(document.getElementById("root")).render(
   </StrictMode>
 );
 
-// http://192.168.12.62:5000
-// http://192.168.12.62:5000/
+// http://localhost:5000
+// http://localhost:5000/
