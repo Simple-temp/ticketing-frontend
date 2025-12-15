@@ -20,7 +20,7 @@ import { ToastContainer, toast } from "react-toastify";
 import DeleteIcon from "@mui/icons-material/Delete";
 import * as XLSX from "xlsx";
 
-const API_URL = "http://localhost:5000/api/ticket/all";
+const API_URL = "http://192.168.12.62:5000/api/ticket/all";
 
 const AllTicket = () => {
   const [ticketList, setTicketList] = useState([]);
@@ -178,7 +178,7 @@ const AllTicket = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/ticket/${id}`, {
+      await axios.delete(`http://192.168.12.62:5000/api/ticket/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -293,7 +293,7 @@ const AllTicket = () => {
                     {/* new Date(ticket.complainDate).toLocaleDateString("en-GB") */}
                     <TableCell>{t.complainTime}</TableCell>
                     <TableCell>
-                      {new Date(t.solvedDate).toLocaleDateString("en-GB")}
+                      { t.solvedDate ? new Date(t.solvedDate).toLocaleDateString("en-GB") :"" }
                     </TableCell>
                     <TableCell>{t.engName}</TableCell>
                     <TableCell>{lastRemark}</TableCell>

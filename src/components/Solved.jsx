@@ -15,7 +15,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import { motion } from "framer-motion";
 
-const API_URL = "http://localhost:5000/api/ticket/all";
+const API_URL = "http://192.168.12.62:5000/api/ticket/all";
 
 const Solved = () => {
   const [tickets, setTickets] = useState([]);

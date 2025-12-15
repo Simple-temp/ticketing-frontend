@@ -563,5 +563,6 @@ export const clientListAll = [
   "Porshuram Kamrul",
   "ANL_Maijdee With Italy Broadband",
   "Amratuli online",
-  "Imaginex"
+  "Imaginex",
+  "Arshi Porshi Network"
 ];

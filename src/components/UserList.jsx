@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { motion } from "framer-motion";
 
-const API_URL = "http://localhost:5000/api/user/all";
+const API_URL = "http://192.168.12.62:5000/api/user/all";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);

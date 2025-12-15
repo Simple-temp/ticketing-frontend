@@ -12,7 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { issueListAll, clientListAll } from "./Database";
 
-const API_URL = "http://localhost:5000/api/ticket/create";
+const API_URL = "http://192.168.12.62:5000/api/ticket/create";
 
 const CreateTicket = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));

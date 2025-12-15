@@ -22,8 +22,9 @@ import {
 import DownloadIcon from "@mui/icons-material/Download";
 import ClearIcon from "@mui/icons-material/Clear";
 import * as XLSX from "xlsx";
+import { Link } from "react-router-dom";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "http://192.168.12.62:5000";
 
 const MyTickets = () => {
   const [tickets, setTickets] = useState([]);
@@ -260,6 +261,7 @@ const MyTickets = () => {
                   <TableCell sx={{ color: "black" }}>Complain Time</TableCell>
                   <TableCell sx={{ color: "black" }}>Solved Time</TableCell>
                   <TableCell sx={{ color: "black" }}>Status</TableCell>
+                  <TableCell sx={{ color: "black" }}>Details</TableCell>
                 </TableRow>
               </TableHead>
 
@@ -300,6 +302,13 @@ const MyTickets = () => {
                           >
                             {t.closed === "Yes" ? "Closed" : "Pending"}
                           </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Link to={`/dashboard/ticketdetailsbyid/${t._id}`}>
+                            <Button size="small" variant="contained">
+                              Details
+                            </Button>
+                          </Link>
                         </TableCell>
                       </TableRow>
                     ))

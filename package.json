@@ -7,7 +7,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "dev": "vite"
+    "dev": "vite --host 192.168.12.62"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
