@@ -45,7 +45,7 @@ const TicketDetailsById = () => {
     if (!newRemark) return toast.error("Enter a remark");
 
     const token = localStorage.getItem("token");
-    // const user = localStorage.getItem("user");
+    // const user = localStorage.getItem("user"); // user.name
     const headers = { Authorization: `Bearer ${token}` };
 
     try {
