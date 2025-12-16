@@ -42,20 +42,52 @@ const MyTickets = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const token = localStorage.getItem("token");
+  // const user = JSON.parse(localStorage.getItem("user"));
+
+  // useEffect(() => {
+  //   const load = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const res = await axios.get(`${API_BASE}/api/ticket/my`, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+
+  //       const sorted = res.data.sort(
+  //         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  //       );
+
+  //       setTickets(sorted);
+  //     } catch (e) {
+  //       console.log(e);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   load();
+  // }, [token]);
+  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${API_BASE}/api/ticket/my`, {
+
+        const res = await axios.get(`${API_BASE}/api/ticket/all`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const sorted = res.data.sort(
+        // 🔥 FILTER MAIN DATA BY LOGGED-IN USER
+        const filteredByEngineer = res.data.filter((t) =>
+          t.engNameAnother?.some((eng) => eng.name === user?.name)
+        );
+
+        // optional sort
+        const sorted = filteredByEngineer.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
 
-        setTickets(sorted);
+        setTickets(sorted); // ✅ MAIN DATA IS NOW USER-SPECIFIC
       } catch (e) {
         console.log(e);
       } finally {
@@ -64,7 +96,7 @@ const MyTickets = () => {
     };
 
     load();
-  }, [token]);
+  }, [token, user?.name]);
 
   const clientTypeOptions = useMemo(() => {
     const set1 = new Set();

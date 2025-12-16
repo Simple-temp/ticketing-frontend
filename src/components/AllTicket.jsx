@@ -35,6 +35,7 @@ const AllTicket = () => {
   const [searchClientType, setSearchClientType] = useState("");
   const [searchPending, setSearchPending] = useState("");
   const [engname, setengName] = useState("");
+  const [engnameanother, setengnameanother] = useState("");
 
   useEffect(() => {
     const loadTickets = async () => {
@@ -67,6 +68,12 @@ const AllTicket = () => {
     if (engname.trim() !== "") {
       data = data.filter((t) =>
         t.engName?.toLowerCase().includes(engname.toLowerCase())
+      );
+    }
+
+    if (engnameanother.trim() !== "") {
+      data = data.filter((t) =>
+        t.engNameAnother?.toLowerCase().includes(engnameanother.toLowerCase())
       );
     }
 
@@ -117,7 +124,8 @@ const AllTicket = () => {
     searchPending,
     startDate,
     endDate,
-    engname
+    engname,
+    engnameanother,
   ]);
 
   // -----------------------------
@@ -136,6 +144,8 @@ const AllTicket = () => {
           )[0].text
         : "";
 
+      const engineerName = t.engNameAnother?.slice(-1)[0]?.name || "";
+
       return {
         Sn: t.Sn,
         clientType: t.clientType,
@@ -149,7 +159,7 @@ const AllTicket = () => {
         solvedTime: t.solvedTime,
         sTime: t.sTime,
         engName: t.engName,
-        engNameAnother: t.engNameAnother,
+        engNameAnother: engineerName,
         lastRemark: lastRemark,
         closed: t.closed,
         pending: t.pending,
@@ -315,7 +325,9 @@ const AllTicket = () => {
                         : ""}
                     </TableCell>
                     <TableCell>{t.solvedTime}</TableCell>
-                    <TableCell>{t.engName}</TableCell>
+                    <TableCell>
+                      {t.engNameAnother?.slice(-1)[0]?.name || ""}
+                    </TableCell>
                     <TableCell>{lastRemark}</TableCell>
 
                     <TableCell>
